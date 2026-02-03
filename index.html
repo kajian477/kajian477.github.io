@@ -302,8 +302,7 @@ const siteConfig = {
   adminWhatsApp: "6281234567890", // ganti: nomor WA tanpa +
   instagramUrl: "https://instagram.com/",
   mainMapsUrl: "https://maps.google.com/",
-  lastUpdated: "2026-02-03"
-};
+  };
 
 /** =========================
  *  DATA SOURCE (GOOGLE SHEET CSV)
@@ -601,7 +600,17 @@ async function loadKajianFromSheet(){
  *  ========================= */
 (async function init(){
   $("#year").textContent = new Date().getFullYear();
-  $("#lastUpdated").textContent = siteConfig.lastUpdated;
+  const now = new Date();
+  const date = now.toLocaleDateString("id-ID", { 
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+  const time = now.toLocaleTimeString("id-ID", { 
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  $("#lastUpdated").textContent = `${date} • ${time} ${siteConfig.timezoneLabel}`;
 
   const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nLokasi/Link:\nCatatan:");
   $("#waAdmin").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
