@@ -195,49 +195,21 @@
       border-radius: 8px;
       border:1px solid var(--border);
     }
-    .topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  padding: 14px 0 6px;
-}
-
-.top-actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-@media (max-width: 720px){
-  .topbar{
-    flex-direction:column;
-    align-items:stretch;
-  }
-  .top-actions{
-    width:100%;
-  }
-  .top-actions .btn{
-    flex:1;
-  }
-}
-
   </style>
 </head>
 
 <body>
   <div class="container">
-    <header class="topbar">
-  <div class="brand">
-    <h1>Info Kajian</h1>
-    <p>Jadwal kajian, lokasi, ustadz, dan link penting.</p>
-  </div>
-
-  <div class="top-actions">
-    <a class="btn good" id="waAdminTop" target="_blank" rel="noopener">WhatsApp Admin</a>
-    <button class="btn" id="scrollToFilter" type="button">Filter</button>
-  </div>
-</header>
+    <header>
+      <div class="brand">
+        <h1>Info Kajian</h1>
+        <p>Jadwal kajian, lokasi, ustadz, dan link penting. Gunakan filter untuk cari kajian terdekat & sesuai tema.</p>
+      </div>
+      <div class="badge">
+        <span>📍</span>
+        <span>Zona waktu: <b>WIB</b> • Update data: <b id="lastUpdated">-</b></span>
+      </div>
+    </header>
 
     <div class="grid">
       <section class="panel">
@@ -287,7 +259,7 @@
         </div>
 
         <div class="note">
-          Tips: Gunakan filter untuk cari jadwal kajian
+          Tips: Pilih Kata Kunci untuk memudahkan pencarian
         </div>
 
         <div class="count" id="count">Memuat data…</div>
@@ -327,7 +299,7 @@
  *  ========================= */
 const siteConfig = {
   timezoneLabel: "WIB",
-  adminWhatsApp: "6282134864427", // ganti: nomor WA tanpa +
+  adminWhatsApp: "6281234567890", // ganti: nomor WA tanpa +
   instagramUrl: "https://instagram.com/",
   mainMapsUrl: "https://maps.google.com/",
   };
@@ -642,9 +614,6 @@ async function loadKajianFromSheet(){
 
   const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nLokasi/Link:\nCatatan:");
   $("#waAdmin").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
-  $("#waAdminTop").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
-$("#scrollToFilter").addEventListener("click", ()=>document.querySelector(".panel")?.scrollIntoView({behavior:"smooth"}));
-
   $("#igLink").href = siteConfig.instagramUrl;
   $("#mapsLink").href = siteConfig.mainMapsUrl;
 
