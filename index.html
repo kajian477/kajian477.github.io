@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Info Kajian</title>
+  <meta name="description" content="Informasi kajian terbaru: jadwal, lokasi, ustadz, tema, dan link pendaftaran/streaming." />
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#101a33;
+      --muted:#a8b3cf;
+      --text:#eef2ff;
+      --accent:#7c3aed;
+      --accent2:#22c55e;
+      --border:rgba(255,255,255,.10);
+      --shadow: 0 12px 35px rgba(0,0,0,.30);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 500px at 20% -10%, rgba(124,58,237,.35), transparent 60%),
+                  radial-gradient(900px 450px at 100% 0%, rgba(34,197,94,.25), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    a{color:inherit}
+    .container{max-width:1120px;margin:0 auto;padding:24px}
+    header{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:18px;
+      padding:18px 0 10px;
+    }
+    .brand{display:flex; flex-direction:column; gap:6px}
+    .brand h1{margin:0;font-size:28px;letter-spacing:.2px}
+    .brand p{margin:0;color:var(--muted);line-height:1.4;max-width:58ch}
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--border);
+      border-radius:999px;
+      box-shadow: var(--shadow);
+      height: fit-content;
+      white-space: nowrap;
+      font-size:13px;
+      color: var(--muted);
+    }
+    .badge b{color:var(--text)}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:18px;
+      margin-top:12px;
+    }
+    @media (max-width: 920px){
+      .grid{grid-template-columns:1fr}
+      header{flex-direction:column}
+      .badge{width:fit-content}
+    }
+    .panel{
+      background: rgba(255,255,255,.05);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .panel h2{margin:0 0 12px;font-size:16px;color: var(--text);letter-spacing:.2px}
+    .filters{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 520px){
+      .filters{grid-template-columns:1fr}
+    }
+    label{
+      display:flex; flex-direction:column; gap:7px;
+      font-size:12px; color: var(--muted);
+    }
+    input, select{
+      width:100%;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      outline:none;
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+    }
+    input::placeholder{color: rgba(238,242,255,.55)}
+    .actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+    .btn{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+      transition: transform .06s ease, background .2s ease;
+      user-select:none;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .btn:hover{background: rgba(255,255,255,.10)}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(124,58,237,.55));
+      border-color: rgba(124,58,237,.55);
+    }
+    .btn.primary:hover{background: linear-gradient(135deg, rgba(124,58,237,1), rgba(124,58,237,.65))}
+    .btn.good{
+      background: linear-gradient(135deg, rgba(34,197,94,.95), rgba(34,197,94,.55));
+      border-color: rgba(34,197,94,.55);
+    }
+    .btn.good:hover{background: linear-gradient(135deg, rgba(34,197,94,1), rgba(34,197,94,.65))}
+    .count{margin-top:10px;color: var(--muted);font-size:13px}
+    .cards{display:grid;grid-template-columns: 1fr;gap:12px}
+    .card{
+      background: rgba(0,0,0,.18);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:14px;
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+    }
+    .datebox{
+      min-width:86px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--border);
+      padding:10px 10px;
+      text-align:center;
+    }
+    .datebox .d{font-size:22px;font-weight:800;margin:0}
+    .datebox .m{font-size:12px;color:var(--muted);margin:2px 0 0}
+    .datebox .t{font-size:12px;color:var(--muted);margin:8px 0 0}
+    .card h3{margin:0 0 6px;font-size:16px;line-height:1.25}
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:0 0 10px;
+      color: var(--muted);
+      font-size:13px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+    }
+    .pill.offline{border-color: rgba(34,197,94,.40)}
+    .pill.online{border-color: rgba(124,58,237,.40)}
+    .desc{margin:0 0 10px;color: rgba(238,242,255,.85);line-height:1.5}
+    .card .buttons{display:flex; gap:10px; flex-wrap:wrap}
+    footer{
+      margin:18px 0 8px;
+      color: var(--muted);
+      font-size:13px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .note{
+      border-left: 3px solid rgba(124,58,237,.7);
+      padding-left: 10px;
+      color: var(--muted);
+      line-height:1.5;
+      font-size:13px;
+      margin-top: 8px;
+    }
+    .empty{
+      padding:18px;
+      border-radius: var(--radius);
+      border:1px dashed rgba(255,255,255,.22);
+      color: var(--muted);
+      text-align:center;
+      background: rgba(255,255,255,.03);
+    }
+    code.inline{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: rgba(255,255,255,.08);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border:1px solid var(--border);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <h1>Info Kajian</h1>
+        <p>Jadwal kajian, lokasi, ustadz, dan link penting. Gunakan filter untuk cari kajian terdekat & sesuai tema.</p>
+      </div>
+      <div class="badge">
+        <span>📍</span>
+        <span>Zona waktu: <b>WIB</b> • Update data: <b id="lastUpdated">-</b></span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Filter & Pencarian</h2>
+        <div class="filters">
+          <label>
+            Kata kunci
+            <input id="q" placeholder="contoh: tafsir, fiqih, ramadhan, adab..." />
+          </label>
+
+          <label>
+            Lokasi (kota/masjid)
+            <input id="lokasi" placeholder="contoh: Surabaya, Sidoarjo, Masjid..." />
+          </label>
+
+          <label>
+            Ustadz
+            <select id="ustadz">
+              <option value="">Semua</option>
+            </select>
+          </label>
+
+          <label>
+            Mode
+            <select id="mode">
+              <option value="">Semua</option>
+              <option value="offline">Offline</option>
+              <option value="online">Online</option>
+            </select>
+          </label>
+
+          <label>
+            Dari tanggal
+            <input id="from" type="date" />
+          </label>
+
+          <label>
+            Sampai tanggal
+            <input id="to" type="date" />
+          </label>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="apply">Terapkan</button>
+          <button class="btn" id="reset">Reset</button>
+          <button class="btn good" id="copyLink">Salin Link Filter</button>
+        </div>
+
+        <div class="note">
+          Tips: data kajian sekarang diambil dari Google Sheet (CSV). Pastikan header kolom sesuai.
+        </div>
+
+        <div class="count" id="count">Memuat data…</div>
+      </section>
+
+      <aside class="panel">
+        <h2>Kontak & Info</h2>
+        <p class="desc" style="margin-top:0">
+          Punya info kajian? Kirim ke admin biar ditambahin.
+        </p>
+
+        <div class="actions">
+          <a class="btn good" id="waAdmin" target="_blank" rel="noopener">WhatsApp Admin</a>
+          <a class="btn" id="igLink" target="_blank" rel="noopener">Instagram</a>
+          <a class="btn" id="mapsLink" target="_blank" rel="noopener">Lokasi Utama</a>
+        </div>
+
+        <div class="note">
+          Kamu bisa ganti link admin/IG/maps di bagian <code class="inline">siteConfig</code>.
+        </div>
+      </aside>
+    </div>
+
+    <main style="margin-top:18px">
+      <section class="cards" id="cards"></section>
+    </main>
+
+    <footer>
+      <div>© <span id="year"></span> Info Kajian • Dibuat sederhana biar gampang diupdate.</div>
+      <div><span id="footerCount"></span></div>
+    </footer>
+  </div>
+
+<script>
+/** =========================
+ *  KONFIGURASI WEBSITE
+ *  ========================= */
+const siteConfig = {
+  timezoneLabel: "WIB",
+  adminWhatsApp: "6281234567890", // ganti: nomor WA tanpa +
+  instagramUrl: "https://instagram.com/",
+  mainMapsUrl: "https://maps.google.com/",
+  lastUpdated: "2026-02-03"
+};
+
+/** =========================
+ *  DATA SOURCE (GOOGLE SHEET CSV)
+ *  ========================= */
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT19VlHhkz0RgtPesT2GEFRSKdmYDAllI0I7qnh4F9SnkRzua9OFPmd2KFWShb8J54WyUbfHMmlJwAK/pub?gid=0&single=true&output=csv";
+
+// akan diisi dari sheet
+let kajianData = [];
+
+/** =========================
+ *  UTILITIES
+ *  ========================= */
+const $ = (sel) => document.querySelector(sel);
+const escapeHtml = (s="") => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pad2 = (n) => String(n).padStart(2,"0");
+
+function parseDateTimeISO(dateStr, timeStr){
+  return `${dateStr}T${timeStr}:00`;
+}
+function monthNameID(monthIndex){
+  return ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][monthIndex] || "";
+}
+function toDateObj(dateStr){
+  const [y,m,d] = String(dateStr).split("-").map(Number);
+  return new Date(y, m-1, d);
+}
+
+function buildGoogleCalendarUrl(item){
+  const start = item.date.replaceAll("-","") + "T" + item.time.replace(":","") + "00";
+  const endDate = item.date.replaceAll("-","");
+  const [hh,mm] = item.time.split(":").map(Number);
+  const endMinutes = hh*60 + mm + 90;
+  const endH = Math.floor(endMinutes/60) % 24;
+  const endM = endMinutes % 60;
+  const end = endDate + "T" + pad2(endH) + pad2(endM) + "00";
+
+  const details = [
+    item.notes ? item.notes : "",
+    item.mode === "online" && item.streamUrl ? `Streaming: ${item.streamUrl}` : "",
+    item.registerUrl ? `Registrasi: ${item.registerUrl}` : "",
+  ].filter(Boolean).join("\n");
+
+  const location = item.mode === "offline"
+    ? [item.place, item.address].filter(Boolean).join(" — ")
+    : (item.place || "Online");
+
+  const url = new URL("https://calendar.google.com/calendar/render");
+  url.searchParams.set("action","TEMPLATE");
+  url.searchParams.set("text", item.title);
+  url.searchParams.set("dates", `${start}/${end}`);
+  url.searchParams.set("details", details);
+  url.searchParams.set("location", location);
+  return url.toString();
+}
+
+function buildWhatsAppShare(item){
+  const when = `${item.date} ${item.time} ${siteConfig.timezoneLabel}`;
+  const where = item.mode === "offline" ? item.place : (item.place || "Online");
+  const lines = [
+    `*Info Kajian*`,
+    `Judul: ${item.title}`,
+    `Ustadz: ${item.ustadz}`,
+    item.topic ? `Tema: ${item.topic}` : "",
+    `Waktu: ${when}`,
+    `Mode: ${String(item.mode||"").toUpperCase()}`,
+    `Tempat: ${where}`,
+    item.mapsUrl ? `Maps: ${item.mapsUrl}` : "",
+    item.streamUrl ? `Streaming: ${item.streamUrl}` : "",
+    item.registerUrl ? `Registrasi: ${item.registerUrl}` : "",
+    item.notes ? `Catatan: ${item.notes}` : ""
+  ].filter(Boolean).join("\n");
+  return `https://wa.me/?text=${encodeURIComponent(lines)}`;
+}
+
+function hydrateUstadzOptions(data){
+  const select = $("#ustadz");
+  select.innerHTML = `<option value="">Semua</option>`;
+  const names = [...new Set(data.map(x => x.ustadz).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  for(const n of names){
+    const opt = document.createElement("option");
+    opt.value = n;
+    opt.textContent = n;
+    select.appendChild(opt);
+  }
+}
+
+function getFilters(){
+  return {
+    q: $("#q").value.trim().toLowerCase(),
+    lokasi: $("#lokasi").value.trim().toLowerCase(),
+    ustadz: $("#ustadz").value,
+    mode: $("#mode").value,
+    from: $("#from").value,
+    to: $("#to").value
+  };
+}
+
+function matchItem(item, f){
+  const hay = [
+    item.title, item.topic, item.place, item.address, item.ustadz, item.notes
+  ].join(" ").toLowerCase();
+
+  if(f.q && !hay.includes(f.q)) return false;
+
+  const locHay = [item.place, item.address].join(" ").toLowerCase();
+  if(f.lokasi && !locHay.includes(f.lokasi)) return false;
+
+  if(f.ustadz && item.ustadz !== f.ustadz) return false;
+  if(f.mode && item.mode !== f.mode) return false;
+
+  if(f.from && item.date < f.from) return false;
+  if(f.to && item.date > f.to) return false;
+
+  return true;
+}
+
+function sortByDateTime(a,b){
+  const A = parseDateTimeISO(a.date, a.time);
+  const B = parseDateTimeISO(b.date, b.time);
+  return A.localeCompare(B);
+}
+
+function renderCards(list){
+  const wrap = $("#cards");
+  wrap.innerHTML = "";
+
+  if(list.length === 0){
+    wrap.innerHTML = `<div class="empty">Tidak ada kajian yang cocok dengan filter. Coba longgarkan filter ya.</div>`;
+    return;
+  }
+
+  for(const item of list){
+    const dt = toDateObj(item.date);
+    const d = dt.getDate();
+    const m = monthNameID(dt.getMonth());
+
+    const modePill = item.mode === "offline"
+      ? `<span class="pill offline">🕌 Offline</span>`
+      : `<span class="pill online">💻 Online</span>`;
+
+    const placeLine = item.mode === "offline"
+      ? `${escapeHtml(item.place)}`
+      : `${escapeHtml(item.place || "Online")}`;
+
+    const links = [];
+    if(item.mode === "offline" && item.mapsUrl){
+      links.push(`<a class="btn" href="${escapeHtml(item.mapsUrl)}" target="_blank" rel="noopener">Buka Maps</a>`);
+    }
+    if(item.streamUrl){
+      links.push(`<a class="btn" href="${escapeHtml(item.streamUrl)}" target="_blank" rel="noopener">Streaming</a>`);
+    }
+    if(item.registerUrl){
+      links.push(`<a class="btn primary" href="${escapeHtml(item.registerUrl)}" target="_blank" rel="noopener">Registrasi</a>`);
+    }
+
+    const gcal = buildGoogleCalendarUrl(item);
+    const wa = buildWhatsAppShare(item);
+
+    const card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="datebox">
+        <p class="d">${d}</p>
+        <p class="m">${m}</p>
+        <p class="t">${escapeHtml(item.time)} ${siteConfig.timezoneLabel}</p>
+      </div>
+      <div style="flex:1">
+        <h3>${escapeHtml(item.title)}</h3>
+        <div class="meta">
+          ${modePill}
+          <span class="pill">👤 ${escapeHtml(item.ustadz)}</span>
+          ${item.topic ? `<span class="pill">🏷️ ${escapeHtml(item.topic)}</span>` : ``}
+          <span class="pill">📍 ${placeLine}</span>
+        </div>
+        ${item.notes ? `<p class="desc">${escapeHtml(item.notes)}</p>` : ``}
+        <div class="buttons">
+          ${links.join("")}
+          <a class="btn" href="${gcal}" target="_blank" rel="noopener">Tambah ke Calendar</a>
+          <a class="btn" href="${wa}" target="_blank" rel="noopener">Share WhatsApp</a>
+        </div>
+      </div>
+    `;
+    wrap.appendChild(card);
+  }
+}
+
+function setCounts(total, shown){
+  $("#count").textContent = `Menampilkan ${shown} dari ${total} kajian.`;
+  $("#footerCount").textContent = `${shown} kajian tampil`;
+}
+
+function applyFilters(pushState=true){
+  const f = getFilters();
+  const filtered = kajianData
+    .slice()
+    .sort(sortByDateTime)
+    .filter(item => matchItem(item, f));
+
+  renderCards(filtered);
+  setCounts(kajianData.length, filtered.length);
+
+  if(pushState){
+    const url = new URL(location.href);
+    url.searchParams.set("q", f.q);
+    url.searchParams.set("lokasi", f.lokasi);
+    url.searchParams.set("ustadz", f.ustadz);
+    url.searchParams.set("mode", f.mode);
+    url.searchParams.set("from", f.from);
+    url.searchParams.set("to", f.to);
+    history.replaceState({}, "", url);
+  }
+}
+
+function loadFiltersFromUrl(){
+  const url = new URL(location.href);
+  const sp = url.searchParams;
+
+  $("#q").value = sp.get("q") || "";
+  $("#lokasi").value = sp.get("lokasi") || "";
+  $("#ustadz").value = sp.get("ustadz") || "";
+  $("#mode").value = sp.get("mode") || "";
+  $("#from").value = sp.get("from") || "";
+  $("#to").value = sp.get("to") || "";
+}
+
+/** =========================
+ *  LOAD DATA FROM GOOGLE SHEET (CSV)
+ *  ========================= */
+async function loadKajianFromSheet(){
+  const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+  if(!res.ok) throw new Error("Gagal ambil data. Pastikan link CSV benar & sheet sudah Publish to web.");
+
+  const text = await res.text();
+
+  // CSV parser yang support quotes (cukup untuk output Google Sheets)
+  const rows = [];
+  let row = [], cur = "", inQuotes = false;
+
+  for(let i=0;i<text.length;i++){
+    const c = text[i], n = text[i+1];
+    if(c === '"' && inQuotes && n === '"'){ cur += '"'; i++; continue; }
+    if(c === '"'){ inQuotes = !inQuotes; continue; }
+    if(c === ',' && !inQuotes){ row.push(cur); cur=""; continue; }
+    if((c === '\n' || c === '\r') && !inQuotes){
+      if(cur.length || row.length){ row.push(cur); rows.push(row); }
+      row=[]; cur="";
+      if(c === '\r' && n === '\n') i++;
+      continue;
+    }
+    cur += c;
+  }
+  if(cur.length || row.length){ row.push(cur); rows.push(row); }
+
+  if(rows.length < 2) return [];
+
+  const headers = rows[0].map(h => String(h||"").trim());
+
+  // cari index header case-insensitive
+  const map = {};
+  headers.forEach((h,i)=>{ map[h.toLowerCase()] = i; });
+  const idx = (name) => (name.toLowerCase() in map ? map[name.toLowerCase()] : -1);
+
+  // minimal wajib supaya UI aman
+  const minimal = ["title","ustadz","date","time","mode","place"];
+  for(const k of minimal){
+    if(idx(k) === -1) throw new Error(`Header "${k}" tidak ada. Minimal harus ada: ${minimal.join(", ")}`);
+  }
+
+  const get = (r, key) => {
+    const i = idx(key);
+    return i === -1 ? "" : (r[i] || "");
+  };
+
+  return rows.slice(1)
+    .filter(r => r.some(x => String(x||"").trim() !== ""))
+    .map(r => ({
+      id: get(r,"id"),
+      title: get(r,"title"),
+      ustadz: get(r,"ustadz"),
+      topic: get(r,"topic"),
+      date: get(r,"date"),
+      time: get(r,"time"),
+      mode: (get(r,"mode") || "offline").toLowerCase().trim(),
+      place: get(r,"place"),
+      address: get(r,"address"),
+      mapsUrl: get(r,"mapsUrl"),
+      streamUrl: get(r,"streamUrl"),
+      registerUrl: get(r,"registerUrl"),
+      notes: get(r,"notes"),
+    }));
+}
+
+/** =========================
+ *  INIT
+ *  ========================= */
+(async function init(){
+  $("#year").textContent = new Date().getFullYear();
+  $("#lastUpdated").textContent = siteConfig.lastUpdated;
+
+  const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nLokasi/Link:\nCatatan:");
+  $("#waAdmin").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
+  $("#igLink").href = siteConfig.instagramUrl;
+  $("#mapsLink").href = siteConfig.mainMapsUrl;
+
+  try{
+    kajianData = await loadKajianFromSheet();
+
+    // normalisasi mode (jaga-jaga)
+    kajianData = kajianData.map(x => ({
+      ...x,
+      mode: (x.mode === "online" ? "online" : "offline")
+    }));
+  }catch(e){
+    $("#cards").innerHTML = `<div class="empty">Gagal memuat data Google Sheet: ${escapeHtml(e.message)}<br><br>
+      Pastikan Sheet sudah <b>Publish to web (CSV)</b> dan header kolom sesuai.<br><br>
+      Minimal header: <code class="inline">title, ustadz, date, time, mode, place</code>
+    </div>`;
+    setCounts(0, 0);
+    return;
+  }
+
+  hydrateUstadzOptions(kajianData);
+  loadFiltersFromUrl();
+  applyFilters(false);
+
+  $("#apply").addEventListener("click", ()=>applyFilters(true));
+  $("#reset").addEventListener("click", ()=>{
+    $("#q").value = "";
+    $("#lokasi").value = "";
+    $("#ustadz").value = "";
+    $("#mode").value = "";
+    $("#from").value = "";
+    $("#to").value = "";
+    applyFilters(true);
+  });
+
+  $("#copyLink").addEventListener("click", async ()=>{
+    try{
+      await navigator.clipboard.writeText(location.href);
+      $("#copyLink").textContent = "Link Tersalin ✅";
+      setTimeout(()=>$("#copyLink").textContent="Salin Link Filter", 1200);
+    }catch(e){
+      alert("Gagal salin link. Coba manual: copy dari address bar.");
+    }
+  });
+
+  let t;
+  ["q","lokasi","ustadz","mode","from","to"].forEach(id=>{
+    $("#"+id).addEventListener("input", ()=>{
+      clearTimeout(t);
+      t = setTimeout(()=>applyFilters(true), 250);
+    });
+  });
+})();
+</script>
+</body>
+</html>
