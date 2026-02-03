@@ -200,15 +200,17 @@
 
 <body>
   <div class="container">
-    <header>
-      <div class="brand">
-        <h1>Info Kajian</h1>
-        <p>Jadwal kajian, lokasi, ustadz, dan link penting. Gunakan filter untuk cari kajian terdekat & sesuai tema.</p>
-      </div>
-      <div class="badge">
-        <span> Data Ter-Update pada: <b id="lastUpdated">-</b></span>
-      </div>
-    </header>
+    <header class="topbar">
+  <div class="brand">
+    <h1>Info Kajian</h1>
+    <p>Jadwal kajian, lokasi, ustadz, dan link penting.</p>
+  </div>
+
+  <div class="top-actions">
+    <a class="btn good" id="waAdminTop" target="_blank" rel="noopener">WhatsApp Admin</a>
+    <button class="btn" id="scrollToFilter" type="button">Filter</button>
+  </div>
+</header>
 
     <div class="grid">
       <section class="panel">
