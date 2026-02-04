@@ -337,6 +337,17 @@ const $ = (sel) => document.querySelector(sel);
 const escapeHtml = (s="") => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const pad2 = (n) => String(n).padStart(2,"0");
 
+function formatTanggalLengkap(dateStr){
+  const dt = toDateObj(dateStr);
+
+  const hari = dayNameID(dt.getDay());
+  const tanggal = dt.getDate();
+  const bulan = monthNameID(dt.getMonth());
+  const tahun = dt.getFullYear();
+
+  return `${hari}, ${tanggal} ${bulan} ${tahun}`;
+}
+  
 function parseDateTimeISO(dateStr, timeStr){
   return `${dateStr}T${timeStr}:00`;
 }
@@ -383,21 +394,35 @@ function buildGoogleCalendarUrl(item){
 }
 
 function buildWhatsAppShare(item){
-  const when = `${item.date} ${item.time} ${siteConfig.timezoneLabel}`;
-  const where = item.mode === "offline" ? item.place : (item.place || "Online");
+
+  const tanggalCantik = formatTanggalLengkap(item.date);
+
+  const when = `${tanggalCantik} — ${item.time} ${siteConfig.timezoneLabel}`;
+
+  const where = item.mode === "offline"
+    ? [item.place, item.address].filter(Boolean).join(" — ")
+    : (item.place || "Online");
+
   const lines = [
-    `*Info Kajian*`,
-    `Judul: ${item.title}`,
-    `Ustadz: ${item.ustadz}`,
-    item.topic ? `Tema: ${item.topic}` : "",
-    `Waktu: ${when}`,
-    `Mode: ${String(item.mode||"").toUpperCase()}`,
-    `Tempat: ${where}`,
-    item.mapsUrl ? `Maps: ${item.mapsUrl}` : "",
-    item.streamUrl ? `Streaming: ${item.streamUrl}` : "",
-    item.registerUrl ? `Registrasi: ${item.registerUrl}` : "",
-    item.notes ? `Catatan: ${item.notes}` : ""
+    `🕌 *INFO KAJIAN*`,
+    `────────────────`,
+    `📚 *${item.title}*`,
+    ``,
+    `👤 Ustadz : ${item.ustadz}`,
+    item.topic ? `🏷️ Tema : ${item.topic}` : "",
+    ``,
+    `🗓️ Waktu :`,
+    `${when}`,
+    ``,
+    `📍 Tempat :`,
+    `${where}`,
+    "",
+    item.mapsUrl ? `🗺️ Maps:\n${item.mapsUrl}` : "",
+    item.streamUrl ? `💻 Streaming:\n${item.streamUrl}` : "",
+    item.registerUrl ? `📝 Registrasi:\n${item.registerUrl}` : "",
+    item.notes ? `📌 Catatan:\n${item.notes}` : "",
   ].filter(Boolean).join("\n");
+
   return `https://wa.me/?text=${encodeURIComponent(lines)}`;
 }
 
