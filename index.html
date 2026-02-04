@@ -205,11 +205,7 @@
         <h1>Info Kajian</h1>
         <p>Jadwal kajian, lokasi, ustadz, dan link penting. Gunakan filter untuk cari kajian terdekat & sesuai tema.</p>
       </div>
-      <div class="badge">
-        <span>📍</span>
-        <span>Zona waktu: <b>WIB</b> • Update data: <b id="lastUpdated">-</b></span>
-      </div>
-    </header>
+     </header>
 
     <div class="grid">
       <section class="panel">
@@ -600,18 +596,6 @@ async function loadKajianFromSheet(){
  *  ========================= */
 (async function init(){
   $("#year").textContent = new Date().getFullYear();
-  const now = new Date();
-  const date = now.toLocaleDateString("id-ID", { 
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  });
-  const time = now.toLocaleTimeString("id-ID", { 
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-  $("#lastUpdated").textContent = `${date} • ${time} ${siteConfig.timezoneLabel}`;
-
   const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nLokasi/Link:\nCatatan:");
   $("#waAdmin").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
   $("#igLink").href = siteConfig.instagramUrl;
