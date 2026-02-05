@@ -1,553 +1,681 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Info Kajian Masjid</title>
+  <meta name="description" content="Informasi kajian terbaru: jadwal, lokasi, ustadz, tema, dan link pendaftaran/streaming." />
 
-<title>Info Kajian Masjid</title>
+  <style>
+    :root{
+      --bg:#070b11;
+      --card:#0e1624;
+      --card2:#0b1322;
+      --text:#eef4ff;
+      --muted:#9fb0d0;
+      --gold:#d4af37;
+      --green:#1dbb86;
+      --border:rgba(255,255,255,.10);
+      --shadow:0 18px 55px rgba(0,0,0,.45);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1100px 520px at 12% -10%, rgba(212,175,55,.22), transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, rgba(29,186,138,.16), transparent 55%),
+        linear-gradient(180deg, #05070b, var(--bg));
+    }
+    a{color:inherit; text-decoration:none}
+    .container{max-width:1150px;margin:0 auto;padding:22px}
 
-<style>
+    header{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+      padding:12px 0 8px;
+    }
+    .brand{padding-left:14px; position:relative}
+    .brand:before{
+      content:""; position:absolute; left:0; top:4px; bottom:4px; width:3px; border-radius:999px;
+      background: linear-gradient(180deg, rgba(212,175,55,.95), rgba(29,186,138,.75));
+      box-shadow: 0 0 18px rgba(212,175,55,.25);
+    }
+    .brand h1{margin:0;font-size:28px;letter-spacing:.2px}
+    .brand p{margin:6px 0 0;color:var(--muted);line-height:1.5;max-width:72ch}
 
-:root{
---bg:#070b11;
---card:#0e1624;
---text:#eef4ff;
---muted:#9fb0d0;
---gold:#d4af37;
---green:#1dbb86;
---border:rgba(255,255,255,.10);
---radius:18px;
---shadow:0 18px 55px rgba(0,0,0,.45);
-}
+    .badge{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      box-shadow: var(--shadow);
+      color: var(--muted);
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(212,175,55,.95));
+      box-shadow: 0 0 16px rgba(212,175,55,.35);
+    }
 
-*{box-sizing:border-box}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:18px;
+      margin-top:12px;
+    }
+    @media (max-width: 920px){
+      .grid{grid-template-columns:1fr}
+      header{flex-direction:column}
+      .badge{width:fit-content}
+    }
 
-body{
-margin:0;
-font-family:system-ui;
-color:var(--text);
+    .panel{
+      background: rgba(255,255,255,.045);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .panel h2{
+      margin:0 0 12px;
+      font-size:15px;
+      letter-spacing:.25px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .panel h2:before{
+      content:"";
+      width:10px;height:10px;border-radius:999px;
+      background: linear-gradient(180deg, rgba(29,186,138,.95), rgba(212,175,55,.85));
+      box-shadow: 0 0 14px rgba(29,186,138,.20);
+    }
 
-background:
-radial-gradient(1100px 520px at 12% -10%, rgba(212,175,55,.22), transparent 60%),
-radial-gradient(900px 500px at 100% 0%, rgba(29,186,138,.16), transparent 55%),
-linear-gradient(180deg,#05070b,var(--bg));
-}
+    .filters{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 520px){
+      .filters{grid-template-columns:1fr}
+    }
 
-.container{
-max-width:1150px;
-margin:auto;
-padding:22px;
-}
+    label{
+      display:flex;flex-direction:column;gap:7px;
+      font-size:12px;color:var(--muted);
+    }
+    input, select{
+      width:100%;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      outline:none;
+      background: rgba(0,0,0,.24);
+      color: var(--text);
+      transition: border .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    input::placeholder{color: rgba(243,246,255,.50)}
+    input:focus, select:focus{
+      border-color: rgba(212,175,55,.45);
+      box-shadow: 0 0 0 3px rgba(212,175,55,.12);
+      background: rgba(0,0,0,.30);
+    }
 
-/* HEADER */
+    .actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+    .btn{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:13px;
+      transition: transform .06s ease, background .2s ease, border .2s ease;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .btn:hover{background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18)}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(212,175,55,.98), rgba(212,175,55,.50));
+      border-color: rgba(212,175,55,.35);
+      color:#0B0F16;
+    }
+    .btn.good{
+      background: linear-gradient(135deg, rgba(29,186,138,.98), rgba(29,186,138,.45));
+      border-color: rgba(29,186,138,.35);
+      color:#07110E;
+    }
 
-header{
-display:flex;
-justify-content:space-between;
-align-items:flex-start;
-gap:16px;
-}
+    .count{margin-top:10px;color: var(--muted);font-size:13px}
+    .cards{display:grid;grid-template-columns: 1fr;gap:12px;margin-top:18px}
 
-.brand{
-padding-left:14px;
-position:relative;
-}
+    .card{
+      background: rgba(0,0,0,.20);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:14px;
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      position:relative;
+      overflow:hidden;
+    }
+    .card:before{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(900px 180px at 20% 0%, rgba(212,175,55,.10), transparent 60%);
+      pointer-events:none;
+    }
 
-.brand:before{
-content:"";
-position:absolute;
-left:0;
-top:4px;
-bottom:4px;
-width:3px;
-border-radius:999px;
-background:linear-gradient(180deg,var(--gold),var(--green));
-}
+    .datebox{
+      min-width:96px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
+      border:1px solid var(--border);
+      padding:10px 10px;
+      text-align:center;
+      backdrop-filter: blur(8px);
+    }
+    .datebox .day{
+      font-size:12px;
+      font-weight:900;
+      margin:0 0 6px;
+      color: rgba(212,175,55,.95);
+      letter-spacing:.25px;
+    }
+    .datebox .d{font-size:22px;font-weight:900;margin:2px 0 0}
+    .datebox .m{font-size:12px;color:var(--muted);margin:2px 0 0}
+    .datebox .t{font-size:12px;color:var(--muted);margin:8px 0 0}
 
-.brand h1{
-margin:0;
-font-size:28px;
-}
+    .card h3{margin:0 0 6px;font-size:16px;line-height:1.25}
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:0 0 10px;
+      color: var(--muted);
+      font-size:13px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+    }
+    .pill.offline{border-color: rgba(29,186,138,.35)}
+    .pill.online{border-color: rgba(212,175,55,.35)}
+    .desc{margin:0 0 10px;color: rgba(243,246,255,.86);line-height:1.55}
+    .buttons{display:flex; gap:10px; flex-wrap:wrap}
 
-.brand p{
-margin:6px 0 0;
-color:var(--muted);
-}
-
-/* PANELS */
-
-.grid{
-display:grid;
-grid-template-columns:1.2fr .8fr;
-gap:18px;
-margin-top:14px;
-}
-
-@media(max-width:920px){
-.grid{grid-template-columns:1fr}
-header{flex-direction:column}
-}
-
-.panel{
-background:rgba(255,255,255,.045);
-border:1px solid var(--border);
-border-radius:var(--radius);
-padding:16px;
-box-shadow:var(--shadow);
-}
-
-/* FILTER */
-
-.filters{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-}
-
-@media(max-width:520px){
-.filters{grid-template-columns:1fr}
-}
-
-label{
-font-size:12px;
-color:var(--muted);
-display:flex;
-flex-direction:column;
-gap:6px;
-}
-
-input,select{
-padding:10px;
-border-radius:10px;
-border:1px solid var(--border);
-background:#0a1220;
-color:white;
-}
-
-.actions{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-top:12px;
-}
-
-.btn{
-padding:10px 12px;
-border-radius:12px;
-border:1px solid var(--border);
-background:rgba(255,255,255,.05);
-cursor:pointer;
-font-weight:700;
-}
-
-.btn.primary{
-background:linear-gradient(135deg,var(--gold),#b89628);
-border:none;
-color:#000;
-}
-
-.btn.good{
-background:linear-gradient(135deg,var(--green),#128a65);
-border:none;
-}
-
-/* CARDS */
-
-.cards{
-margin-top:20px;
-display:grid;
-gap:12px;
-}
-
-.card{
-display:flex;
-gap:14px;
-background:#0b1322;
-border:1px solid var(--border);
-border-radius:var(--radius);
-padding:14px;
-}
-
-.datebox{
-min-width:90px;
-text-align:center;
-border-radius:14px;
-border:1px solid var(--border);
-padding:10px;
-background:rgba(255,255,255,.04);
-}
-
-.day{
-font-size:12px;
-color:var(--gold);
-font-weight:800;
-}
-
-.d{
-font-size:22px;
-font-weight:900;
-}
-
-.m,.t{
-font-size:12px;
-color:var(--muted);
-}
-
-.meta{
-display:flex;
-flex-wrap:wrap;
-gap:6px;
-margin:6px 0;
-}
-
-.pill{
-padding:5px 8px;
-border-radius:999px;
-border:1px solid var(--border);
-font-size:12px;
-}
-
-.buttons{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-margin-top:8px;
-}
-
-footer{
-margin-top:18px;
-color:var(--muted);
-font-size:13px;
-display:flex;
-justify-content:space-between;
-}
-
-.empty{
-padding:20px;
-border:1px dashed var(--border);
-border-radius:var(--radius);
-text-align:center;
-color:var(--muted);
-}
-
-</style>
+    footer{
+      margin:18px 0 8px;
+      color: var(--muted);
+      font-size:13px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .empty{
+      padding:18px;
+      border-radius: var(--radius);
+      border:1px dashed rgba(255,255,255,.22);
+      color: var(--muted);
+      text-align:center;
+      background: rgba(255,255,255,.03);
+    }
+    code.inline{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: rgba(255,255,255,.08);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border:1px solid var(--border);
+    }
+  </style>
 </head>
 
 <body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <h1>🕌 Info Kajian Masjid</h1>
+        <p>Jadwal kajian, lokasi, ustadz, tema, dan link penting. Filter Senin–Ahad & urut waktu dijamin benar.</p>
+      </div>
 
-<div class="container">
+      <div class="badge" title="Data dari Google Sheet (CSV)">
+        <span class="dot"></span>
+        <span><b style="color:var(--text)">Live</b> dari Google Sheet</span>
+      </div>
+    </header>
 
-<header>
-<div class="brand">
-<h1>🕌 Info Kajian Masjid</h1>
-<p>Cari jadwal kajian dengan cepat & akurat.</p>
-</div>
-</header>
+    <div class="grid">
+      <section class="panel">
+        <h2>Filter & Pencarian</h2>
 
-<div class="grid">
+        <div class="filters">
+          <label>
+            Kata kunci
+            <input id="q" placeholder="contoh: tafsir, fiqih, ramadhan, adab..." />
+          </label>
 
-<section class="panel">
+          <label>
+            Lokasi (kota/masjid)
+            <input id="lokasi" placeholder="contoh: Surabaya, Sidoarjo, Masjid..." />
+          </label>
 
-<h3>Filter</h3>
+          <label>
+            Ustadz
+            <select id="ustadz">
+              <option value="">Semua</option>
+            </select>
+          </label>
 
-<div class="filters">
+          <label>
+            Mode
+            <select id="mode">
+              <option value="">Semua</option>
+              <option value="offline">Offline</option>
+              <option value="online">Online</option>
+            </select>
+          </label>
 
-<label>Kata kunci<input id="q"/></label>
-<label>Lokasi<input id="lokasi"/></label>
+          <label>
+            Hari
+            <select id="hari">
+              <option value="">Semua</option>
+              <option value="Senin">Senin</option>
+              <option value="Selasa">Selasa</option>
+              <option value="Rabu">Rabu</option>
+              <option value="Kamis">Kamis</option>
+              <option value="Jumat">Jumat</option>
+              <option value="Sabtu">Sabtu</option>
+              <option value="Ahad">Ahad</option>
+            </select>
+          </label>
 
-<label>Ustadz
-<select id="ustadz">
-<option value="">Semua</option>
-</select>
-</label>
+          <label>
+            Dari tanggal
+            <input id="from" type="date" />
+          </label>
 
-<label>Mode
-<select id="mode">
-<option value="">Semua</option>
-<option value="offline">Offline</option>
-<option value="online">Online</option>
-</select>
-</label>
+          <label>
+            Sampai tanggal
+            <input id="to" type="date" />
+          </label>
+        </div>
 
-<label>Hari
-<select id="hari">
-<option value="">Semua</option>
-<option>Senin</option>
-<option>Selasa</option>
-<option>Rabu</option>
-<option>Kamis</option>
-<option>Jumat</option>
-<option>Sabtu</option>
-<option>Ahad</option>
-</select>
-</label>
+        <div class="actions">
+          <button class="btn primary" id="apply">✨ Terapkan</button>
+          <button class="btn" id="reset">↩️ Reset</button>
+          <button class="btn good" id="copyLink">🔗 Salin Link Filter</button>
+        </div>
 
-<label>Dari<input type="date" id="from"/></label>
-<label>Sampai<input type="date" id="to"/></label>
+        <div class="count" id="count">Memuat data…</div>
+      </section>
 
-</div>
+      <aside class="panel">
+        <h2>Kontak & Info</h2>
+        <p class="desc" style="margin-top:0">Punya info kajian? Kirim ke admin biar ditambahin.</p>
 
-<div class="actions">
-<button class="btn primary" id="apply">Terapkan</button>
-<button class="btn" id="reset">Reset</button>
-</div>
+        <div class="actions">
+          <a class="btn good" id="waAdmin" target="_blank" rel="noopener">📲 WhatsApp Admin</a>
+          <a class="btn" id="igLink" target="_blank" rel="noopener">📷 Instagram</a>
+          <a class="btn" id="mapsLink" target="_blank" rel="noopener">🗺️ Lokasi Anda</a>
+        </div>
 
-<div id="count"></div>
+        <p class="desc" style="margin:10px 0 0;color:var(--muted)">
+          Minimal header sheet:
+          <code class="inline">title, ustadz, date, time, mode, place</code>
+        </p>
+      </aside>
+    </div>
 
-</section>
+    <main>
+      <section class="cards" id="cards"></section>
+    </main>
 
-<aside class="panel">
-
-<h3>Kontak Admin</h3>
-<a id="waAdmin" class="btn good" target="_blank">WhatsApp Admin</a>
-
-</aside>
-
-</div>
-
-<section class="cards" id="cards"></section>
-
-<footer>
-<div>© <span id="year"></span></div>
-<div id="footerCount"></div>
-</footer>
-
-</div>
+    <footer>
+      <div>© <span id="year"></span> Info Kajian Masjid.</div>
+      <div><span id="footerCount"></span></div>
+    </footer>
+  </div>
 
 <script>
+/** =========================
+ *  KONFIGURASI
+ *  ========================= */
+const siteConfig = {
+  timezoneLabel: "WIB",
+  adminWhatsApp: "6282134864427",
+  instagramUrl: "https://instagram.com/",
+  mainMapsUrl: "https://maps.google.com/",
+};
 
-const SHEET="https://docs.google.com/spreadsheets/d/e/2PACX-1vT19VlHhkz0RgtPesT2GEFRSKdmYDAllI0I7qnh4F9SnkRzua9OFPmd2KFWShb8J54WyUbfHMmlJwAK/pub?gid=0&single=true&output=csv";
+const SHEET_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vT19VlHhkz0RgtPesT2GEFRSKdmYDAllI0I7qnh4F9SnkRzua9OFPmd2KFWShb8J54WyUbfHMmlJwAK/pub?gid=0&single=true&output=csv";
 
-document.getElementById("year").textContent=new Date().getFullYear();
-document.getElementById("waAdmin").href="https://wa.me/6282134864427";
+let kajianData = [];
+const $ = (sel) => document.querySelector(sel);
+const escapeHtml = (s="") => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pad2 = (n) => String(n).padStart(2,"0");
 
-const $=q=>document.querySelector(q);
+function monthNameID(i){ return ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][i] || ""; }
+function dayNameID(i){ return ["Ahad","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][i] || ""; }
 
+function toDateObj(dateStr){
+  const [y,m,d] = String(dateStr).split("-").map(Number);
+  return new Date(y, m-1, d);
+}
+
+/** ✅ normalisasi jam: "4:00" -> "04:00", "4" -> "04:00", "18.00" -> "18:00" */
 function normalizeTime(t=""){
-t=t.trim().replace(".",":");
-if(!t.includes(":")) t+=":00";
-let [h,m]=t.split(":").map(Number);
-return String(h||0).padStart(2,"0")+":"+String(m||0).padStart(2,"0");
+  t = String(t).trim().replace(".", ":");
+  if(!t) return "00:00";
+  if(!t.includes(":")) t += ":00";
+
+  let [hh, mm] = t.split(":").map(x => parseInt(x, 10));
+  if(Number.isNaN(hh)) hh = 0;
+  if(Number.isNaN(mm)) mm = 0;
+
+  hh = Math.max(0, Math.min(23, hh));
+  mm = Math.max(0, Math.min(59, mm));
+  return pad2(hh) + ":" + pad2(mm);
 }
 
-function normalizeUrl(u=""){
-u=u.trim();
-if(!u) return "";
-if(/^https?:\/\//i.test(u)) return u;
-return "https://"+u;
-}
-
-function dayName(d){
-return["Ahad","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][d];
-}
-
-function monthName(m){
-return["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][m];
-}
-
+/** =========================
+ *  CSV PARSER (support quotes)
+ *  ========================= */
 function parseCSV(text){
-let rows=[],row=[],cur="",q=false;
+  const rows = [];
+  let row = [], cur = "", inQuotes = false;
 
-for(let i=0;i<text.length;i++){
-let c=text[i],n=text[i+1];
+  for(let i=0;i<text.length;i++){
+    const c = text[i], n = text[i+1];
 
-if(c=='"'&&q&&n=='"'){cur+='"';i++;continue;}
-if(c=='"'){q=!q;continue;}
-if(c==","&&!q){row.push(cur);cur="";continue;}
-if((c=="\n"||c=="\r")&&!q){
-if(cur||row.length){row.push(cur);rows.push(row);}
-row=[];cur="";
-continue;
-}
-cur+=c;
-}
-if(cur||row.length){row.push(cur);rows.push(row);}
-return rows;
-}
+    if(c === '"' && inQuotes && n === '"'){ cur += '"'; i++; continue; }
+    if(c === '"'){ inQuotes = !inQuotes; continue; }
 
-let data=[];
+    if(c === ',' && !inQuotes){ row.push(cur); cur=""; continue; }
 
-async function load(){
+    if((c === '\n' || c === '\r') && !inQuotes){
+      if(cur.length || row.length){ row.push(cur); rows.push(row); }
+      row=[]; cur="";
+      if(c === '\r' && n === '\n') i++;
+      continue;
+    }
 
-const res=await fetch(SHEET);
-const text=await res.text();
-
-const rows=parseCSV(text);
-const headers=rows[0].map(h=>h.toLowerCase());
-
-const idx=k=>headers.indexOf(k);
-
-data=rows.slice(1).filter(r=>r.length>3).map(r=>({
-
-title:r[idx("title")],
-ustadz:r[idx("ustadz")],
-topic:r[idx("topic")],
-date:r[idx("date")],
-time:normalizeTime(r[idx("time")]),
-mode:(r[idx("mode")]||"offline").toLowerCase(),
-place:r[idx("place")],
-address:r[idx("address")],
-maps:normalizeUrl(r[idx("mapsurl")]),
-stream:normalizeUrl(r[idx("streamurl")]),
-register:normalizeUrl(r[idx("registerurl")]),
-notes:r[idx("notes")]
-
-}));
-
-hydrate();
-render();
+    cur += c;
+  }
+  if(cur.length || row.length){ row.push(cur); rows.push(row); }
+  return rows;
 }
 
-function hydrate(){
-const s=$("#ustadz");
-[...new Set(data.map(d=>d.ustadz))]
-.sort()
-.forEach(u=>{
-let o=document.createElement("option");
-o.value=u;
-o.textContent=u;
-s.appendChild(o);
-});
+async function loadKajianFromSheet(){
+  const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+  if(!res.ok) throw new Error("Gagal ambil data. Pastikan link CSV benar & sheet sudah Publish to web.");
+  const text = await res.text();
+
+  const rows = parseCSV(text);
+  if(rows.length < 2) return [];
+
+  const headers = rows[0].map(h => String(h||"").trim());
+  const map = {};
+  headers.forEach((h,i)=>{ map[h.toLowerCase()] = i; });
+  const idx = (name) => (name.toLowerCase() in map ? map[name.toLowerCase()] : -1);
+
+  const minimal = ["title","ustadz","date","time","mode","place"];
+  for(const k of minimal){
+    if(idx(k) === -1) throw new Error(`Header "${k}" tidak ada. Minimal harus ada: ${minimal.join(", ")}`);
+  }
+
+  const get = (r, key) => {
+    const i = idx(key);
+    return i === -1 ? "" : (r[i] || "").trim();
+  };
+
+  return rows.slice(1)
+    .filter(r => r.some(x => String(x||"").trim() !== ""))
+    .map(r => ({
+      id: get(r,"id"),
+      title: get(r,"title"),
+      ustadz: get(r,"ustadz"),
+      topic: get(r,"topic"),
+      date: get(r,"date"),
+      time: normalizeTime(get(r,"time")),
+      mode: (get(r,"mode") || "offline").toLowerCase().trim() === "online" ? "online" : "offline",
+      place: get(r,"place"),
+      address: get(r,"address"),
+      mapsUrl: get(r,"mapsUrl"),
+      streamUrl: get(r,"streamUrl"),
+      registerUrl: get(r,"registerUrl"),
+      notes: get(r,"notes"),
+    }));
 }
 
-function sortKajian(a,b){
-return new Date(`${a.date}T${a.time}`).getTime()
-     - new Date(`${b.date}T${b.time}`).getTime();
+/** ✅ SORT: timestamp angka (bukan string), jadi 04:00 pasti sebelum 18:00 */
+function sortByDateTime(a,b){
+  const A = new Date(`${a.date}T${a.time}:00`).getTime();
+  const B = new Date(`${b.date}T${b.time}:00`).getTime();
+  return A - B;
 }
 
-function match(d,f){
-
-if(f.q && !(d.title+d.topic+d.place+d.ustadz).toLowerCase().includes(f.q)) return false;
-if(f.lokasi && !(d.place+d.address).toLowerCase().includes(f.lokasi)) return false;
-if(f.ustadz && d.ustadz!==f.ustadz) return false;
-if(f.mode && d.mode!==f.mode) return false;
-
-if(f.hari){
-let h=dayName(new Date(d.date).getDay());
-if(h!==f.hari) return false;
-}
-
-if(f.from && d.date<f.from) return false;
-if(f.to && d.date>f.to) return false;
-
-return true;
-}
-
-function formatTanggal(date){
-let dt=new Date(date);
-return `${dayName(dt.getDay())}, ${dt.getDate()} ${monthName(dt.getMonth())} ${dt.getFullYear()}`;
-}
-
-function gcal(d){
-
-let start=d.date.replaceAll("-","")+"T"+d.time.replace(":","")+"00";
-
-let [h,m]=d.time.split(":").map(Number);
-let endM=h*60+m+90;
-let eh=Math.floor(endM/60)%24;
-let em=endM%60;
-
-let end=d.date.replaceAll("-","")+"T"+
-String(eh).padStart(2,"0")+
-String(em).padStart(2,"0")+"00";
-
-return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(d.title)}&dates=${start}/${end}&details=${encodeURIComponent(d.notes||"")}&location=${encodeURIComponent(d.place||"")}`;
-}
-
-function wa(d){
-
-let msg=
-`🕌 *INFO KAJIAN*\n\n📚 *${d.title}*\n👤 ${d.ustadz}\n🗓️ ${formatTanggal(d.date)} — ${d.time} WIB\n📍 ${d.place||""}\n\n${d.notes||""}`;
-
-return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+function hydrateUstadzOptions(data){
+  const select = $("#ustadz");
+  select.innerHTML = `<option value="">Semua</option>`;
+  const names = [...new Set(data.map(x => x.ustadz).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  for(const n of names){
+    const opt = document.createElement("option");
+    opt.value = n;
+    opt.textContent = n;
+    select.appendChild(opt);
+  }
 }
 
 function getFilters(){
-return{
-q:$("#q").value.toLowerCase(),
-lokasi:$("#lokasi").value.toLowerCase(),
-ustadz:$("#ustadz").value,
-mode:$("#mode").value,
-hari:$("#hari").value,
-from:$("#from").value,
-to:$("#to").value
-};
+  return {
+    q: $("#q").value.trim().toLowerCase(),
+    lokasi: $("#lokasi").value.trim().toLowerCase(),
+    ustadz: $("#ustadz").value,
+    mode: $("#mode").value,
+    hari: $("#hari").value,
+    from: $("#from").value,
+    to: $("#to").value
+  };
 }
 
-function render(){
+function matchItem(item, f){
+  const hay = [item.title, item.topic, item.place, item.address, item.ustadz, item.notes].join(" ").toLowerCase();
+  if(f.q && !hay.includes(f.q)) return false;
 
-const f=getFilters();
+  const locHay = [item.place, item.address].join(" ").toLowerCase();
+  if(f.lokasi && !locHay.includes(f.lokasi)) return false;
 
-const list=data
-.slice()
-.sort(sortKajian)
-.filter(d=>match(d,f));
+  if(f.ustadz && item.ustadz !== f.ustadz) return false;
+  if(f.mode && item.mode !== f.mode) return false;
 
-const wrap=$("#cards");
-wrap.innerHTML="";
+  if(f.hari){
+    const itemHari = dayNameID(toDateObj(item.date).getDay());
+    if(itemHari !== f.hari) return false;
+  }
 
-if(!list.length){
-wrap.innerHTML=`<div class="empty">Tidak ada kajian.</div>`;
-return;
+  if(f.from && item.date < f.from) return false;
+  if(f.to && item.date > f.to) return false;
+
+  return true;
 }
 
-list.forEach(d=>{
+function renderCards(list){
+  const wrap = $("#cards");
+  wrap.innerHTML = "";
 
-let dt=new Date(d.date);
+  if(list.length === 0){
+    wrap.innerHTML = `<div class="empty">Tidak ada kajian yang cocok dengan filter.</div>`;
+    return;
+  }
 
-wrap.innerHTML+=`
+  for(const item of list){
+    const dt = toDateObj(item.date);
+    const d = dt.getDate();
+    const m = monthNameID(dt.getMonth());
+    const hari = dayNameID(dt.getDay());
 
-<div class="card">
+    const modePill = item.mode === "offline"
+      ? `<span class="pill offline">🕌 Offline</span>`
+      : `<span class="pill online">💻 Online</span>`;
 
-<div class="datebox">
-<div class="day">${dayName(dt.getDay())}</div>
-<div class="d">${dt.getDate()}</div>
-<div class="m">${monthName(dt.getMonth())}</div>
-<div class="t">${d.time} WIB</div>
-</div>
+    const links = [];
+    if(item.mode === "offline" && item.mapsUrl){
+      links.push(`<a class="btn" href="${escapeHtml(item.mapsUrl)}" target="_blank" rel="noopener">🗺️ Buka Maps</a>`);
+    }
+    if(item.streamUrl){
+      links.push(`<a class="btn" href="${escapeHtml(item.streamUrl)}" target="_blank" rel="noopener">▶️ Streaming</a>`);
+    }
+    if(item.registerUrl){
+      links.push(`<a class="btn primary" href="${escapeHtml(item.registerUrl)}" target="_blank" rel="noopener">📝 Registrasi</a>`);
+    }
 
-<div>
+    const card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="datebox">
+        <p class="day">${hari}</p>
+        <p class="d">${d}</p>
+        <p class="m">${m}</p>
+        <p class="t">${escapeHtml(item.time)} ${siteConfig.timezoneLabel}</p>
+      </div>
 
-<h3>${d.title}</h3>
+      <div style="flex:1; position:relative">
+        <h3>${escapeHtml(item.title)}</h3>
 
-<div class="meta">
-<span class="pill">${d.ustadz}</span>
-<span class="pill">${d.mode}</span>
-<span class="pill">${d.place}</span>
-</div>
+        <div class="meta">
+          ${modePill}
+          <span class="pill">👤 ${escapeHtml(item.ustadz)}</span>
+          ${item.topic ? `<span class="pill">🏷️ ${escapeHtml(item.topic)}</span>` : ``}
+          <span class="pill">📍 ${escapeHtml(item.place || "")}</span>
+        </div>
 
-<div>${d.notes||""}</div>
+        ${item.notes ? `<p class="desc">${escapeHtml(item.notes)}</p>` : ``}
 
-<div class="buttons">
-
-${d.maps?`<a class="btn" target="_blank" href="${d.maps}">Maps</a>`:""}
-${d.stream?`<a class="btn" target="_blank" href="${d.stream}">Streaming</a>`:""}
-${d.register?`<a class="btn primary" target="_blank" href="${d.register}">Registrasi</a>`:""}
-
-<a class="btn" target="_blank" href="${gcal(d)}">📅 Calendar</a>
-<a class="btn" target="_blank" href="${wa(d)}">📤 Share</a>
-
-</div>
-
-</div>
-</div>
-`;
-
-});
-
-$("#count").textContent=`Menampilkan ${list.length} kajian`;
-$("#footerCount").textContent=list.length+" kajian";
-
+        <div class="buttons">
+          ${links.join("")}
+        </div>
+      </div>
+    `;
+    wrap.appendChild(card);
+  }
 }
 
-$("#apply").onclick=render;
-$("#reset").onclick=()=>{
-document.querySelectorAll("input,select").forEach(i=>i.value="");
-render();
-};
+function setCounts(total, shown){
+  $("#count").textContent = `Menampilkan ${shown} dari ${total} total kajian yang tercatat.`;
+  $("#footerCount").textContent = `${shown} kajian ditampilkan`;
+}
 
-load();
+function applyFilters(pushState=true){
+  const f = getFilters();
+  const filtered = kajianData
+    .slice()
+    .sort(sortByDateTime)
+    .filter(item => matchItem(item, f));
 
+  renderCards(filtered);
+  setCounts(kajianData.length, filtered.length);
+
+  if(pushState){
+    const url = new URL(location.href);
+    url.searchParams.set("q", f.q);
+    url.searchParams.set("lokasi", f.lokasi);
+    url.searchParams.set("ustadz", f.ustadz);
+    url.searchParams.set("mode", f.mode);
+    url.searchParams.set("hari", f.hari);
+    url.searchParams.set("from", f.from);
+    url.searchParams.set("to", f.to);
+    history.replaceState({}, "", url);
+  }
+}
+
+function loadFiltersFromUrl(){
+  const url = new URL(location.href);
+  const sp = url.searchParams;
+
+  $("#q").value = sp.get("q") || "";
+  $("#lokasi").value = sp.get("lokasi") || "";
+  $("#ustadz").value = sp.get("ustadz") || "";
+  $("#mode").value = sp.get("mode") || "";
+  $("#hari").value = sp.get("hari") || "";
+  $("#from").value = sp.get("from") || "";
+  $("#to").value = sp.get("to") || "";
+}
+
+/** =========================
+ *  INIT
+ *  ========================= */
+(async function init(){
+  $("#year").textContent = new Date().getFullYear();
+
+  const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal (YYYY-MM-DD):\nJam (HH:MM):\nMode (offline/online):\nTempat:\nAlamat:\nMaps/Streaming/Registrasi:\nCatatan:");
+  $("#waAdmin").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
+  $("#igLink").href = siteConfig.instagramUrl;
+  $("#mapsLink").href = siteConfig.mainMapsUrl;
+
+  try{
+    kajianData = await loadKajianFromSheet();
+  }catch(e){
+    $("#cards").innerHTML = `<div class="empty">Gagal memuat data Google Sheet: ${escapeHtml(e.message)}<br><br>
+      Pastikan Sheet sudah <b>Publish to web (CSV)</b> dan header kolom sesuai.<br><br>
+      Minimal header: <code class="inline">title, ustadz, date, time, mode, place</code>
+    </div>`;
+    setCounts(0, 0);
+    return;
+  }
+
+  hydrateUstadzOptions(kajianData);
+  loadFiltersFromUrl();
+  applyFilters(false);
+
+  $("#apply").addEventListener("click", ()=>applyFilters(true));
+  $("#reset").addEventListener("click", ()=>{
+    $("#q").value = "";
+    $("#lokasi").value = "";
+    $("#ustadz").value = "";
+    $("#mode").value = "";
+    $("#hari").value = "";
+    $("#from").value = "";
+    $("#to").value = "";
+    applyFilters(true);
+  });
+
+  $("#copyLink").addEventListener("click", async ()=>{
+    try{
+      await navigator.clipboard.writeText(location.href);
+      $("#copyLink").textContent = "✅ Link Tersalin";
+      setTimeout(()=>$("#copyLink").textContent="🔗 Salin Link Filter", 1200);
+    }catch(e){
+      alert("Gagal salin link. Coba manual: copy dari address bar.");
+    }
+  });
+
+  let t;
+  ["q","lokasi","ustadz","mode","hari","from","to"].forEach(id=>{
+    $("#"+id).addEventListener("input", ()=>{
+      clearTimeout(t);
+      t = setTimeout(()=>applyFilters(true), 250);
+    });
+  });
+})();
 </script>
 </body>
 </html>
