@@ -46,6 +46,7 @@
       white-space: nowrap;
       font-size:13px;
       color: var(--muted);
+      backdrop-filter: blur(8px);
     }
     .badge b{color:var(--text)}
     .grid{
@@ -106,6 +107,7 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
+      gap:8px;
     }
     .btn:hover{background: rgba(255,255,255,.10)}
     .btn:active{transform: translateY(1px)}
@@ -119,8 +121,34 @@
       border-color: rgba(34,197,94,.55);
     }
     .btn.good:hover{background: linear-gradient(135deg, rgba(34,197,94,1), rgba(34,197,94,.65))}
+    .btn.ghost{
+      background: rgba(255,255,255,.04);
+    }
+
+    /* ✅ Quick chips */
+    .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      font-weight:700;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+      transition: background .2s ease, transform .06s ease;
+    }
+    .chip:hover{background: rgba(255,255,255,.10)}
+    .chip:active{transform: translateY(1px)}
+    .chip .sub{color: var(--muted); font-weight:600}
+
     .count{margin-top:10px;color: var(--muted);font-size:13px}
     .cards{display:grid;grid-template-columns: 1fr;gap:12px}
+
     .card{
       background: rgba(0,0,0,.18);
       border:1px solid var(--border);
@@ -129,25 +157,60 @@
       display:flex;
       gap:14px;
       align-items:flex-start;
+      position:relative;
+      overflow:hidden;
     }
+
+    /* ✅ Highlight "Kajian Terdekat" */
+    .card.featured{
+      border-color: rgba(34,197,94,.55);
+      box-shadow: 0 18px 45px rgba(0,0,0,.45);
+      background:
+        radial-gradient(900px 220px at 10% -30%, rgba(34,197,94,.25), transparent 55%),
+        rgba(0,0,0,.18);
+    }
+    .ribbon{
+      position:absolute;
+      top:10px;
+      right:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(34,197,94,.45);
+      background: rgba(34,197,94,.10);
+      font-size:12px;
+      font-weight:800;
+      color: rgba(220,255,234,1);
+      backdrop-filter: blur(8px);
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    /* ✅ Past / dim */
+    .card.past{
+      opacity:.55;
+      filter:saturate(.9);
+    }
+
     .datebox{
-      min-width:92px;
+      min-width:98px;
       border-radius: 16px;
       background: rgba(255,255,255,.06);
       border:1px solid var(--border);
       padding:10px 10px;
       text-align:center;
     }
-    .datebox .d{font-size:22px;font-weight:800;margin:2px 0 0}
-    .datebox .m{font-size:12px;color:var(--muted);margin:2px 0 0}
     .datebox .day{
       font-size:12px;
-      font-weight:800;
+      font-weight:900;
       margin:0 0 6px;
       color: rgba(196,181,253,1);
       letter-spacing:.2px;
     }
+    .datebox .d{font-size:22px;font-weight:800;margin:2px 0 0}
+    .datebox .m{font-size:12px;color:var(--muted);margin:2px 0 0}
     .datebox .t{font-size:12px;color:var(--muted);margin:8px 0 0}
+
     .card h3{margin:0 0 6px;font-size:16px;line-height:1.25}
     .meta{
       display:flex;
@@ -168,8 +231,13 @@
     }
     .pill.offline{border-color: rgba(34,197,94,.40)}
     .pill.online{border-color: rgba(124,58,237,.40)}
+    .pill.live{border-color: rgba(239,68,68,.45); background: rgba(239,68,68,.10); color: rgba(255,230,230,1)}
+    .pill.today{border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.10); color: rgba(220,255,234,1)}
+    .pill.hminus{border-color: rgba(124,58,237,.45); background: rgba(124,58,237,.10); color: rgba(235,230,255,1)}
+
     .desc{margin:0 0 10px;color: rgba(238,242,255,.85);line-height:1.5}
     .card .buttons{display:flex; gap:10px; flex-wrap:wrap}
+
     footer{
       margin:18px 0 8px;
       color: var(--muted);
@@ -212,12 +280,27 @@
         <h1>Info Kajian</h1>
         <p>Jadwal kajian, lokasi, ustadz, dan link penting. Gunakan filter untuk cari kajian terdekat & sesuai tema.</p>
       </div>
+
+      <!-- ✅ Badge hari ini -->
+      <div class="badge">
+        <b>Hari ini</b>
+        <span id="todayText">—</span>
+      </div>
     </header>
 
     <div class="grid">
       <section class="panel">
         <h2>Filter & Pencarian</h2>
-        <div class="filters">
+
+        <!-- ✅ Quick filter chips -->
+        <div class="chips">
+          <button class="chip" id="chipToday">⚡ <span>Hari ini</span> <span class="sub" id="chipTodaySub"></span></button>
+          <button class="chip" id="chipWeek">📅 <span>Minggu ini</span></button>
+          <button class="chip" id="chipNearest">🔥 <span>Terdekat</span></button>
+          <button class="chip" id="chipClear">🧼 <span>Clear</span></button>
+        </div>
+
+        <div class="filters" style="margin-top:12px">
           <label>
             Kata kunci
             <input id="q" placeholder="contoh: tafsir, fiqih, ramadhan, adab..." />
@@ -272,12 +355,12 @@
 
         <div class="actions">
           <button class="btn primary" id="apply">Terapkan</button>
-          <button class="btn" id="reset">Reset</button>
+          <button class="btn ghost" id="reset">Reset</button>
           <button class="btn good" id="copyLink">Salin Link Filter</button>
         </div>
 
         <div class="note">
-          Tips: Gunakan Filter untuk memudahkan pencarian
+          Tips: Pakai chip “Hari ini / Minggu ini / Terdekat” biar cepat nemu kajian yang kamu butuh.
         </div>
 
         <div class="count" id="count">Memuat data…</div>
@@ -317,7 +400,7 @@
  *  ========================= */
 const siteConfig = {
   timezoneLabel: "WIB",
-  adminWhatsApp: "6282134864427", // ganti: nomor WA tanpa +
+  adminWhatsApp: "6282134864427",
   instagramUrl: "https://instagram.com/",
   mainMapsUrl: "https://maps.google.com/",
 };
@@ -327,7 +410,6 @@ const siteConfig = {
  *  ========================= */
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT19VlHhkz0RgtPesT2GEFRSKdmYDAllI0I7qnh4F9SnkRzua9OFPmd2KFWShb8J54WyUbfHMmlJwAK/pub?gid=0&single=true&output=csv";
 
-// akan diisi dari sheet
 let kajianData = [];
 
 /** =========================
@@ -343,17 +425,48 @@ function parseDateTimeISO(dateStr, timeStr){
 function monthNameID(monthIndex){
   return ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][monthIndex] || "";
 }
-
-/** ✅ Hari Senin–Ahad (Ahad menggantikan Minggu) */
+/** ✅ Hari Senin–Ahad */
 function dayNameID(dayIndex){
   return ["Ahad","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][dayIndex] || "";
 }
-
 function toDateObj(dateStr){
   const [y,m,d] = String(dateStr).split("-").map(Number);
   return new Date(y, m-1, d);
 }
+function toDateTimeObj(dateStr, timeStr){
+  const [y,m,d] = String(dateStr).split("-").map(Number);
+  const [hh,mm] = String(timeStr || "00:00").split(":").map(Number);
+  return new Date(y, m-1, d, hh || 0, mm || 0, 0, 0);
+}
+function formatTanggalLengkap(dateStr){
+  const dt = toDateObj(dateStr);
+  return `${dayNameID(dt.getDay())}, ${dt.getDate()} ${monthNameID(dt.getMonth())} ${dt.getFullYear()}`;
+}
+function formatYYYYMMDD(dt){
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth()+1).padStart(2,"0");
+  const d = String(dt.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+function startOfWeekMonday(dt){
+  const d = new Date(dt);
+  const day = d.getDay(); // 0 Ahad ... 6 Sabtu
+  const delta = (day === 0 ? -6 : 1 - day); // mundur ke Senin
+  d.setDate(d.getDate() + delta);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function endOfWeekSunday(dt){
+  const s = startOfWeekMonday(dt);
+  const e = new Date(s);
+  e.setDate(e.getDate() + 6);
+  e.setHours(23,59,59,999);
+  return e;
+}
 
+/** =========================
+ *  LINKS
+ *  ========================= */
 function buildGoogleCalendarUrl(item){
   const start = item.date.replaceAll("-","") + "T" + item.time.replace(":","") + "00";
   const endDate = item.date.replaceAll("-","");
@@ -383,24 +496,39 @@ function buildGoogleCalendarUrl(item){
 }
 
 function buildWhatsAppShare(item){
-  const when = `${item.date} ${item.time} ${siteConfig.timezoneLabel}`;
-  const where = item.mode === "offline" ? item.place : (item.place || "Online");
+  const tanggalCantik = formatTanggalLengkap(item.date);
+  const when = `${tanggalCantik} — ${item.time} ${siteConfig.timezoneLabel}`;
+
+  const where = item.mode === "offline"
+    ? [item.place, item.address].filter(Boolean).join(" — ")
+    : (item.place || "Online");
+
   const lines = [
-    `*Info Kajian*`,
-    `Judul: ${item.title}`,
-    `Ustadz: ${item.ustadz}`,
-    item.topic ? `Tema: ${item.topic}` : "",
-    `Waktu: ${when}`,
-    `Mode: ${String(item.mode||"").toUpperCase()}`,
-    `Tempat: ${where}`,
-    item.mapsUrl ? `Maps: ${item.mapsUrl}` : "",
-    item.streamUrl ? `Streaming: ${item.streamUrl}` : "",
-    item.registerUrl ? `Registrasi: ${item.registerUrl}` : "",
-    item.notes ? `Catatan: ${item.notes}` : ""
+    `🕌 *INFO KAJIAN*`,
+    `────────────────`,
+    `📚 *${item.title}*`,
+    ``,
+    `👤 Ustadz : ${item.ustadz}`,
+    item.topic ? `🏷️ Tema : ${item.topic}` : "",
+    ``,
+    `🗓️ Waktu :`,
+    `${when}`,
+    ``,
+    `📍 Tempat :`,
+    `${where}`,
+    "",
+    item.mapsUrl ? `🗺️ Maps:\n${item.mapsUrl}` : "",
+    item.streamUrl ? `💻 Streaming:\n${item.streamUrl}` : "",
+    item.registerUrl ? `📝 Registrasi:\n${item.registerUrl}` : "",
+    item.notes ? `📌 Catatan:\n${item.notes}` : "",
   ].filter(Boolean).join("\n");
+
   return `https://wa.me/?text=${encodeURIComponent(lines)}`;
 }
 
+/** =========================
+ *  FILTERS
+ *  ========================= */
 function hydrateUstadzOptions(data){
   const select = $("#ustadz");
   select.innerHTML = `<option value="">Semua</option>`;
@@ -438,7 +566,6 @@ function matchItem(item, f){
   if(f.ustadz && item.ustadz !== f.ustadz) return false;
   if(f.mode && item.mode !== f.mode) return false;
 
-  /** ✅ Filter Hari (Senin–Ahad) */
   if(f.hari){
     const itemHari = dayNameID(toDateObj(item.date).getDay());
     if(itemHari !== f.hari) return false;
@@ -456,6 +583,48 @@ function sortByDateTime(a,b){
   return A.localeCompare(B);
 }
 
+/** =========================
+ *  UI LOGIC
+ *  ========================= */
+function getStatusPills(item){
+  const now = new Date();
+  const start = toDateTimeObj(item.date, item.time);
+  const end = new Date(start.getTime() + 90*60*1000);
+
+  const sameDay = formatYYYYMMDD(now) === item.date;
+
+  if(now >= start && now <= end){
+    return `<span class="pill live">🔴 Sedang berlangsung</span>`;
+  }
+  if(sameDay && now < start){
+    return `<span class="pill today">⚡ Hari ini</span>`;
+  }
+
+  const diffMs = start - now;
+  const diffDays = Math.floor(diffMs / (24*60*60*1000));
+
+  if(diffDays >= 1 && diffDays <= 14){
+    return `<span class="pill hminus">⏳ H-${diffDays}</span>`;
+  }
+  return "";
+}
+
+function pickNearestUpcoming(list){
+  const now = new Date();
+  let best = null;
+  let bestTime = Infinity;
+
+  for(const item of list){
+    const dt = toDateTimeObj(item.date, item.time);
+    const t = dt.getTime();
+    if(t >= now.getTime() && t < bestTime){
+      bestTime = t;
+      best = item;
+    }
+  }
+  return best;
+}
+
 function renderCards(list){
   const wrap = $("#cards");
   wrap.innerHTML = "";
@@ -465,15 +634,22 @@ function renderCards(list){
     return;
   }
 
+  const nearest = pickNearestUpcoming(list);
+
   for(const item of list){
     const dt = toDateObj(item.date);
     const d = dt.getDate();
     const m = monthNameID(dt.getMonth());
     const hari = dayNameID(dt.getDay());
 
+    const startDT = toDateTimeObj(item.date, item.time);
+    const isPast = startDT.getTime() < Date.now() - (30*60*1000); // lewat 30 menit masih dianggap lewat
+
     const modePill = item.mode === "offline"
       ? `<span class="pill offline">🕌 Offline</span>`
       : `<span class="pill online">💻 Online</span>`;
+
+    const statusPill = getStatusPills(item);
 
     const placeLine = item.mode === "offline"
       ? `${escapeHtml(item.place)}`
@@ -481,40 +657,49 @@ function renderCards(list){
 
     const links = [];
     if(item.mode === "offline" && item.mapsUrl){
-      links.push(`<a class="btn" href="${escapeHtml(item.mapsUrl)}" target="_blank" rel="noopener">Buka Maps</a>`);
+      links.push(`<a class="btn" href="${escapeHtml(item.mapsUrl)}" target="_blank" rel="noopener">🗺️ Maps</a>`);
     }
     if(item.streamUrl){
-      links.push(`<a class="btn" href="${escapeHtml(item.streamUrl)}" target="_blank" rel="noopener">Streaming</a>`);
+      links.push(`<a class="btn" href="${escapeHtml(item.streamUrl)}" target="_blank" rel="noopener">💻 Streaming</a>`);
     }
     if(item.registerUrl){
-      links.push(`<a class="btn primary" href="${escapeHtml(item.registerUrl)}" target="_blank" rel="noopener">Registrasi</a>`);
+      links.push(`<a class="btn primary" href="${escapeHtml(item.registerUrl)}" target="_blank" rel="noopener">📝 Registrasi</a>`);
     }
 
     const gcal = buildGoogleCalendarUrl(item);
     const wa = buildWhatsAppShare(item);
 
+    const isFeatured = nearest && (nearest.title === item.title && nearest.date === item.date && nearest.time === item.time);
+
     const card = document.createElement("article");
-    card.className = "card";
+    card.className = `card${isFeatured ? " featured" : ""}${isPast ? " past" : ""}`;
+
     card.innerHTML = `
+      ${isFeatured ? `<div class="ribbon">🔥 Kajian Terdekat</div>` : ``}
       <div class="datebox">
         <p class="day">${hari}</p>
         <p class="d">${d}</p>
         <p class="m">${m}</p>
         <p class="t">${escapeHtml(item.time)} ${siteConfig.timezoneLabel}</p>
       </div>
+
       <div style="flex:1">
         <h3>${escapeHtml(item.title)}</h3>
+
         <div class="meta">
           ${modePill}
+          ${statusPill}
           <span class="pill">👤 ${escapeHtml(item.ustadz)}</span>
           ${item.topic ? `<span class="pill">🏷️ ${escapeHtml(item.topic)}</span>` : ``}
           <span class="pill">📍 ${placeLine}</span>
         </div>
+
         ${item.notes ? `<p class="desc">${escapeHtml(item.notes)}</p>` : ``}
+
         <div class="buttons">
           ${links.join("")}
-          <a class="btn" href="${gcal}" target="_blank" rel="noopener">Tambah ke Calendar</a>
-          <a class="btn" href="${wa}" target="_blank" rel="noopener">Share WhatsApp</a>
+          <a class="btn" href="${gcal}" target="_blank" rel="noopener">🗓️ Calendar</a>
+          <a class="btn" href="${wa}" target="_blank" rel="noopener">📤 Share WA</a>
         </div>
       </div>
     `;
@@ -572,7 +757,6 @@ async function loadKajianFromSheet(){
 
   const text = await res.text();
 
-  // CSV parser yang support quotes (cukup untuk output Google Sheets)
   const rows = [];
   let row = [], cur = "", inQuotes = false;
 
@@ -594,13 +778,10 @@ async function loadKajianFromSheet(){
   if(rows.length < 2) return [];
 
   const headers = rows[0].map(h => String(h||"").trim());
-
-  // cari index header case-insensitive
   const map = {};
   headers.forEach((h,i)=>{ map[h.toLowerCase()] = i; });
   const idx = (name) => (name.toLowerCase() in map ? map[name.toLowerCase()] : -1);
 
-  // minimal wajib supaya UI aman
   const minimal = ["title","ustadz","date","time","mode","place"];
   for(const k of minimal){
     if(idx(k) === -1) throw new Error(`Header "${k}" tidak ada. Minimal harus ada: ${minimal.join(", ")}`);
@@ -633,8 +814,27 @@ async function loadKajianFromSheet(){
 /** =========================
  *  INIT
  *  ========================= */
+function fillTodayBadge(){
+  const now = new Date();
+  const label = `${dayNameID(now.getDay())}, ${now.getDate()} ${monthNameID(now.getMonth())} ${now.getFullYear()}`;
+  $("#todayText").textContent = `${label} (${siteConfig.timezoneLabel})`;
+  $("#chipTodaySub").textContent = `(${label})`;
+}
+
+function clearAllFilters(){
+  $("#q").value = "";
+  $("#lokasi").value = "";
+  $("#ustadz").value = "";
+  $("#mode").value = "";
+  $("#hari").value = "";
+  $("#from").value = "";
+  $("#to").value = "";
+}
+
 (async function init(){
   $("#year").textContent = new Date().getFullYear();
+  fillTodayBadge();
+
   const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nLokasi/Link:\nCatatan:");
   $("#waAdmin").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
   $("#igLink").href = siteConfig.instagramUrl;
@@ -642,12 +842,7 @@ async function loadKajianFromSheet(){
 
   try{
     kajianData = await loadKajianFromSheet();
-
-    // normalisasi mode (jaga-jaga)
-    kajianData = kajianData.map(x => ({
-      ...x,
-      mode: (x.mode === "online" ? "online" : "offline")
-    }));
+    kajianData = kajianData.map(x => ({ ...x, mode: (x.mode === "online" ? "online" : "offline") }));
   }catch(e){
     $("#cards").innerHTML = `<div class="empty">Gagal memuat data Google Sheet: ${escapeHtml(e.message)}<br><br>
       Pastikan Sheet sudah <b>Publish to web (CSV)</b> dan header kolom sesuai.<br><br>
@@ -661,15 +856,10 @@ async function loadKajianFromSheet(){
   loadFiltersFromUrl();
   applyFilters(false);
 
+  // ✅ Buttons
   $("#apply").addEventListener("click", ()=>applyFilters(true));
   $("#reset").addEventListener("click", ()=>{
-    $("#q").value = "";
-    $("#lokasi").value = "";
-    $("#ustadz").value = "";
-    $("#mode").value = "";
-    $("#hari").value = "";
-    $("#from").value = "";
-    $("#to").value = "";
+    clearAllFilters();
     applyFilters(true);
   });
 
@@ -683,6 +873,47 @@ async function loadKajianFromSheet(){
     }
   });
 
+  // ✅ Quick chips
+  $("#chipClear").addEventListener("click", ()=>{
+    clearAllFilters();
+    applyFilters(true);
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  $("#chipToday").addEventListener("click", ()=>{
+    clearAllFilters();
+    const now = new Date();
+    const today = formatYYYYMMDD(now);
+    $("#from").value = today;
+    $("#to").value = today;
+    $("#hari").value = dayNameID(now.getDay());
+    applyFilters(true);
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  $("#chipWeek").addEventListener("click", ()=>{
+    clearAllFilters();
+    const now = new Date();
+    const start = startOfWeekMonday(now);
+    const end = endOfWeekSunday(now);
+    $("#from").value = formatYYYYMMDD(start);
+    $("#to").value = formatYYYYMMDD(end);
+    applyFilters(true);
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  $("#chipNearest").addEventListener("click", ()=>{
+    // logic: fokus ke kajian terdekat (biar highlight) dengan membatasi range 14 hari ke depan
+    const now = new Date();
+    const from = formatYYYYMMDD(now);
+    const to = formatYYYYMMDD(new Date(now.getTime() + 14*24*60*60*1000));
+    $("#from").value = from;
+    $("#to").value = to;
+    applyFilters(true);
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  // ✅ Auto filter when typing
   let t;
   ["q","lokasi","ustadz","mode","hari","from","to"].forEach(id=>{
     $("#"+id).addEventListener("input", ()=>{
