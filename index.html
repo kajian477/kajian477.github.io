@@ -475,11 +475,33 @@ function matchItem(item, f){
   return true;
 }
 
-function sortByDateTime(a,b){
-  const A = parseDateTimeISO(a.date, a.time);
-  const B = parseDateTimeISO(b.date, b.time);
-  return A.localeCompare(B);
+function normalizeTime(t=""){
+  // terima: "8", "8:0", "08:00", "8.00", "08.00", dll
+  t = String(t).trim().replace(".", ":");
+  if(!t) return "00:00";
+  if(!t.includes(":")) t += ":00";
+
+  let [hh, mm] = t.split(":").map(x => parseInt(x, 10));
+  if(Number.isNaN(hh)) hh = 0;
+  if(Number.isNaN(mm)) mm = 0;
+
+  hh = Math.max(0, Math.min(23, hh));
+  mm = Math.max(0, Math.min(59, mm));
+
+  return String(hh).padStart(2,"0") + ":" + String(mm).padStart(2,"0");
 }
+
+function sortByDateTime(a,b){
+  const ta = normalizeTime(a.time);
+  const tb = normalizeTime(b.time);
+
+  // pakai Date object biar urut bener (tanggal + jam)
+  const A = new Date(`${a.date}T${ta}:00`).getTime();
+  const B = new Date(`${b.date}T${tb}:00`).getTime();
+
+  return A - B;
+}
+
 
 function renderCards(list){
   const wrap = $("#cards");
