@@ -131,15 +131,22 @@
       align-items:flex-start;
     }
     .datebox{
-      min-width:86px;
+      min-width:92px;
       border-radius: 16px;
       background: rgba(255,255,255,.06);
       border:1px solid var(--border);
       padding:10px 10px;
       text-align:center;
     }
-    .datebox .d{font-size:22px;font-weight:800;margin:0}
+    .datebox .d{font-size:22px;font-weight:800;margin:2px 0 0}
     .datebox .m{font-size:12px;color:var(--muted);margin:2px 0 0}
+    .datebox .day{
+      font-size:12px;
+      font-weight:800;
+      margin:0 0 6px;
+      color: rgba(196,181,253,1);
+      letter-spacing:.2px;
+    }
     .datebox .t{font-size:12px;color:var(--muted);margin:8px 0 0}
     .card h3{margin:0 0 6px;font-size:16px;line-height:1.25}
     .meta{
@@ -205,7 +212,7 @@
         <h1>Info Kajian</h1>
         <p>Jadwal kajian, lokasi, ustadz, dan link penting. Gunakan filter untuk cari kajian terdekat & sesuai tema.</p>
       </div>
-     </header>
+    </header>
 
     <div class="grid">
       <section class="panel">
@@ -234,6 +241,21 @@
               <option value="">Semua</option>
               <option value="offline">Offline</option>
               <option value="online">Online</option>
+            </select>
+          </label>
+
+          <!-- ✅ FILTER HARI -->
+          <label>
+            Hari
+            <select id="hari">
+              <option value="">Semua</option>
+              <option value="Senin">Senin</option>
+              <option value="Selasa">Selasa</option>
+              <option value="Rabu">Rabu</option>
+              <option value="Kamis">Kamis</option>
+              <option value="Jumat">Jumat</option>
+              <option value="Sabtu">Sabtu</option>
+              <option value="Ahad">Ahad</option>
             </select>
           </label>
 
@@ -298,7 +320,7 @@ const siteConfig = {
   adminWhatsApp: "6282134864427", // ganti: nomor WA tanpa +
   instagramUrl: "https://instagram.com/",
   mainMapsUrl: "https://maps.google.com/",
-  };
+};
 
 /** =========================
  *  DATA SOURCE (GOOGLE SHEET CSV)
@@ -321,6 +343,12 @@ function parseDateTimeISO(dateStr, timeStr){
 function monthNameID(monthIndex){
   return ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][monthIndex] || "";
 }
+
+/** ✅ Hari Senin–Ahad (Ahad menggantikan Minggu) */
+function dayNameID(dayIndex){
+  return ["Ahad","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][dayIndex] || "";
+}
+
 function toDateObj(dateStr){
   const [y,m,d] = String(dateStr).split("-").map(Number);
   return new Date(y, m-1, d);
@@ -391,6 +419,7 @@ function getFilters(){
     lokasi: $("#lokasi").value.trim().toLowerCase(),
     ustadz: $("#ustadz").value,
     mode: $("#mode").value,
+    hari: $("#hari").value,
     from: $("#from").value,
     to: $("#to").value
   };
@@ -408,6 +437,12 @@ function matchItem(item, f){
 
   if(f.ustadz && item.ustadz !== f.ustadz) return false;
   if(f.mode && item.mode !== f.mode) return false;
+
+  /** ✅ Filter Hari (Senin–Ahad) */
+  if(f.hari){
+    const itemHari = dayNameID(toDateObj(item.date).getDay());
+    if(itemHari !== f.hari) return false;
+  }
 
   if(f.from && item.date < f.from) return false;
   if(f.to && item.date > f.to) return false;
@@ -434,6 +469,7 @@ function renderCards(list){
     const dt = toDateObj(item.date);
     const d = dt.getDate();
     const m = monthNameID(dt.getMonth());
+    const hari = dayNameID(dt.getDay());
 
     const modePill = item.mode === "offline"
       ? `<span class="pill offline">🕌 Offline</span>`
@@ -461,6 +497,7 @@ function renderCards(list){
     card.className = "card";
     card.innerHTML = `
       <div class="datebox">
+        <p class="day">${hari}</p>
         <p class="d">${d}</p>
         <p class="m">${m}</p>
         <p class="t">${escapeHtml(item.time)} ${siteConfig.timezoneLabel}</p>
@@ -506,6 +543,7 @@ function applyFilters(pushState=true){
     url.searchParams.set("lokasi", f.lokasi);
     url.searchParams.set("ustadz", f.ustadz);
     url.searchParams.set("mode", f.mode);
+    url.searchParams.set("hari", f.hari);
     url.searchParams.set("from", f.from);
     url.searchParams.set("to", f.to);
     history.replaceState({}, "", url);
@@ -520,6 +558,7 @@ function loadFiltersFromUrl(){
   $("#lokasi").value = sp.get("lokasi") || "";
   $("#ustadz").value = sp.get("ustadz") || "";
   $("#mode").value = sp.get("mode") || "";
+  $("#hari").value = sp.get("hari") || "";
   $("#from").value = sp.get("from") || "";
   $("#to").value = sp.get("to") || "";
 }
@@ -628,6 +667,7 @@ async function loadKajianFromSheet(){
     $("#lokasi").value = "";
     $("#ustadz").value = "";
     $("#mode").value = "";
+    $("#hari").value = "";
     $("#from").value = "";
     $("#to").value = "";
     applyFilters(true);
@@ -644,7 +684,7 @@ async function loadKajianFromSheet(){
   });
 
   let t;
-  ["q","lokasi","ustadz","mode","from","to"].forEach(id=>{
+  ["q","lokasi","ustadz","mode","hari","from","to"].forEach(id=>{
     $("#"+id).addEventListener("input", ()=>{
       clearTimeout(t);
       t = setTimeout(()=>applyFilters(true), 250);
