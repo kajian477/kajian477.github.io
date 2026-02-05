@@ -3,65 +3,52 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Info Kajian Masjid</title>
+  <title>Info Kajian</title>
   <meta name="description" content="Informasi kajian terbaru: jadwal, lokasi, ustadz, tema, dan link pendaftaran/streaming." />
-
   <style>
     :root{
-      --bg:#070b11;
-      --card:#0e1624;
-      --card2:#0b1322;
-      --text:#eef4ff;
-      --muted:#9fb0d0;
-      --gold:#d4af37;
-      --green:#1dbb86;
+      --bg:#0b1220;
+      --card:#101a33;
+      --muted:#a8b3cf;
+      --text:#eef2ff;
+      --accent:#7c3aed;
+      --accent2:#22c55e;
       --border:rgba(255,255,255,.10);
-      --shadow:0 18px 55px rgba(0,0,0,.45);
+      --shadow: 0 12px 35px rgba(0,0,0,.30);
       --radius:18px;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 500px at 20% -10%, rgba(124,58,237,.35), transparent 60%),
+                  radial-gradient(900px 450px at 100% 0%, rgba(34,197,94,.25), transparent 55%),
+                  var(--bg);
       color:var(--text);
-      background:
-        radial-gradient(1100px 520px at 12% -10%, rgba(212,175,55,.22), transparent 60%),
-        radial-gradient(900px 500px at 100% 0%, rgba(29,186,138,.16), transparent 55%),
-        linear-gradient(180deg, #05070b, var(--bg));
     }
-    a{color:inherit; text-decoration:none}
-    .container{max-width:1150px;margin:0 auto;padding:22px}
-
+    a{color:inherit}
+    .container{max-width:1120px;margin:0 auto;padding:24px}
     header{
-      display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
-      padding:12px 0 8px;
+      display:flex; align-items:flex-start; justify-content:space-between; gap:18px;
+      padding:18px 0 10px;
     }
-    .brand{padding-left:14px; position:relative}
-    .brand:before{
-      content:""; position:absolute; left:0; top:4px; bottom:4px; width:3px; border-radius:999px;
-      background: linear-gradient(180deg, rgba(212,175,55,.95), rgba(29,186,138,.75));
-      box-shadow: 0 0 18px rgba(212,175,55,.25);
-    }
+    .brand{display:flex; flex-direction:column; gap:6px}
     .brand h1{margin:0;font-size:28px;letter-spacing:.2px}
-    .brand p{margin:6px 0 0;color:var(--muted);line-height:1.5;max-width:72ch}
-
+    .brand p{margin:0;color:var(--muted);line-height:1.4;max-width:58ch}
     .badge{
-      display:inline-flex;align-items:center;gap:10px;
+      display:inline-flex; align-items:center; gap:8px;
       padding:10px 12px;
-      border-radius:999px;
+      background: rgba(255,255,255,.06);
       border:1px solid var(--border);
-      background: rgba(255,255,255,.05);
+      border-radius:999px;
       box-shadow: var(--shadow);
-      color: var(--muted);
+      height: fit-content;
+      white-space: nowrap;
       font-size:13px;
-      white-space:nowrap;
+      color: var(--muted);
+      backdrop-filter: blur(8px);
     }
-    .dot{
-      width:10px;height:10px;border-radius:999px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(212,175,55,.95));
-      box-shadow: 0 0 16px rgba(212,175,55,.35);
-    }
-
+    .badge b{color:var(--text)}
     .grid{
       display:grid;
       grid-template-columns: 1.2fr .8fr;
@@ -73,30 +60,15 @@
       header{flex-direction:column}
       .badge{width:fit-content}
     }
-
     .panel{
-      background: rgba(255,255,255,.045);
+      background: rgba(255,255,255,.05);
       border:1px solid var(--border);
       border-radius: var(--radius);
       padding:16px;
       box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(8px);
     }
-    .panel h2{
-      margin:0 0 12px;
-      font-size:15px;
-      letter-spacing:.25px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .panel h2:before{
-      content:"";
-      width:10px;height:10px;border-radius:999px;
-      background: linear-gradient(180deg, rgba(29,186,138,.95), rgba(212,175,55,.85));
-      box-shadow: 0 0 14px rgba(29,186,138,.20);
-    }
-
+    .panel h2{margin:0 0 12px;font-size:16px;color: var(--text);letter-spacing:.2px}
     .filters{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -105,10 +77,9 @@
     @media (max-width: 520px){
       .filters{grid-template-columns:1fr}
     }
-
     label{
-      display:flex;flex-direction:column;gap:7px;
-      font-size:12px;color:var(--muted);
+      display:flex; flex-direction:column; gap:7px;
+      font-size:12px; color: var(--muted);
     }
     input, select{
       width:100%;
@@ -116,52 +87,70 @@
       border-radius: 12px;
       border:1px solid var(--border);
       outline:none;
-      background: rgba(0,0,0,.24);
+      background: rgba(0,0,0,.25);
       color: var(--text);
-      transition: border .18s ease, box-shadow .18s ease, background .18s ease;
     }
-    input::placeholder{color: rgba(243,246,255,.50)}
-    input:focus, select:focus{
-      border-color: rgba(212,175,55,.45);
-      box-shadow: 0 0 0 3px rgba(212,175,55,.12);
-      background: rgba(0,0,0,.30);
-    }
-
+    input::placeholder{color: rgba(238,242,255,.55)}
     .actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
     .btn{
       border:1px solid var(--border);
-      background: rgba(255,255,255,.05);
+      background: rgba(255,255,255,.06);
       color: var(--text);
       padding:10px 12px;
       border-radius: 12px;
       cursor:pointer;
-      font-weight:800;
+      font-weight:600;
       font-size:13px;
-      transition: transform .06s ease, background .2s ease, border .2s ease;
+      transition: transform .06s ease, background .2s ease;
       user-select:none;
+      text-decoration:none;
       display:inline-flex;
       align-items:center;
       justify-content:center;
       gap:8px;
     }
-    .btn:hover{background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18)}
+    .btn:hover{background: rgba(255,255,255,.10)}
     .btn:active{transform: translateY(1px)}
     .btn.primary{
-      background: linear-gradient(135deg, rgba(212,175,55,.98), rgba(212,175,55,.50));
-      border-color: rgba(212,175,55,.35);
-      color:#0B0F16;
+      background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(124,58,237,.55));
+      border-color: rgba(124,58,237,.55);
     }
+    .btn.primary:hover{background: linear-gradient(135deg, rgba(124,58,237,1), rgba(124,58,237,.65))}
     .btn.good{
-      background: linear-gradient(135deg, rgba(29,186,138,.98), rgba(29,186,138,.45));
-      border-color: rgba(29,186,138,.35);
-      color:#07110E;
+      background: linear-gradient(135deg, rgba(34,197,94,.95), rgba(34,197,94,.55));
+      border-color: rgba(34,197,94,.55);
     }
+    .btn.good:hover{background: linear-gradient(135deg, rgba(34,197,94,1), rgba(34,197,94,.65))}
+    .btn.ghost{
+      background: rgba(255,255,255,.04);
+    }
+
+    /* ✅ Quick chips */
+    .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      font-weight:700;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+      transition: background .2s ease, transform .06s ease;
+    }
+    .chip:hover{background: rgba(255,255,255,.10)}
+    .chip:active{transform: translateY(1px)}
+    .chip .sub{color: var(--muted); font-weight:600}
 
     .count{margin-top:10px;color: var(--muted);font-size:13px}
-    .cards{display:grid;grid-template-columns: 1fr;gap:12px;margin-top:18px}
+    .cards{display:grid;grid-template-columns: 1fr;gap:12px}
 
     .card{
-      background: rgba(0,0,0,.20);
+      background: rgba(0,0,0,.18);
       border:1px solid var(--border);
       border-radius: var(--radius);
       padding:14px;
@@ -171,30 +160,54 @@
       position:relative;
       overflow:hidden;
     }
-    .card:before{
-      content:"";
-      position:absolute; inset:0;
-      background: radial-gradient(900px 180px at 20% 0%, rgba(212,175,55,.10), transparent 60%);
-      pointer-events:none;
+
+    /* ✅ Highlight "Kajian Terdekat" */
+    .card.featured{
+      border-color: rgba(34,197,94,.55);
+      box-shadow: 0 18px 45px rgba(0,0,0,.45);
+      background:
+        radial-gradient(900px 220px at 10% -30%, rgba(34,197,94,.25), transparent 55%),
+        rgba(0,0,0,.18);
+    }
+    .ribbon{
+      position:absolute;
+      top:10px;
+      right:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(34,197,94,.45);
+      background: rgba(34,197,94,.10);
+      font-size:12px;
+      font-weight:800;
+      color: rgba(220,255,234,1);
+      backdrop-filter: blur(8px);
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    /* ✅ Past / dim */
+    .card.past{
+      opacity:.55;
+      filter:saturate(.9);
     }
 
     .datebox{
-      min-width:96px;
+      min-width:98px;
       border-radius: 16px;
-      background: rgba(255,255,255,.05);
+      background: rgba(255,255,255,.06);
       border:1px solid var(--border);
       padding:10px 10px;
       text-align:center;
-      backdrop-filter: blur(8px);
     }
     .datebox .day{
       font-size:12px;
       font-weight:900;
       margin:0 0 6px;
-      color: rgba(212,175,55,.95);
-      letter-spacing:.25px;
+      color: rgba(196,181,253,1);
+      letter-spacing:.2px;
     }
-    .datebox .d{font-size:22px;font-weight:900;margin:2px 0 0}
+    .datebox .d{font-size:22px;font-weight:800;margin:2px 0 0}
     .datebox .m{font-size:12px;color:var(--muted);margin:2px 0 0}
     .datebox .t{font-size:12px;color:var(--muted);margin:8px 0 0}
 
@@ -214,12 +227,16 @@
       padding:6px 10px;
       border-radius: 999px;
       border:1px solid var(--border);
-      background: rgba(255,255,255,.04);
+      background: rgba(255,255,255,.05);
     }
-    .pill.offline{border-color: rgba(29,186,138,.35)}
-    .pill.online{border-color: rgba(212,175,55,.35)}
-    .desc{margin:0 0 10px;color: rgba(243,246,255,.86);line-height:1.55}
-    .buttons{display:flex; gap:10px; flex-wrap:wrap}
+    .pill.offline{border-color: rgba(34,197,94,.40)}
+    .pill.online{border-color: rgba(124,58,237,.40)}
+    .pill.live{border-color: rgba(239,68,68,.45); background: rgba(239,68,68,.10); color: rgba(255,230,230,1)}
+    .pill.today{border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.10); color: rgba(220,255,234,1)}
+    .pill.hminus{border-color: rgba(124,58,237,.45); background: rgba(124,58,237,.10); color: rgba(235,230,255,1)}
+
+    .desc{margin:0 0 10px;color: rgba(238,242,255,.85);line-height:1.5}
+    .card .buttons{display:flex; gap:10px; flex-wrap:wrap}
 
     footer{
       margin:18px 0 8px;
@@ -229,6 +246,14 @@
       justify-content:space-between;
       gap:12px;
       flex-wrap:wrap;
+    }
+    .note{
+      border-left: 3px solid rgba(124,58,237,.7);
+      padding-left: 10px;
+      color: var(--muted);
+      line-height:1.5;
+      font-size:13px;
+      margin-top: 8px;
     }
     .empty{
       padding:18px;
@@ -252,13 +277,14 @@
   <div class="container">
     <header>
       <div class="brand">
-        <h1>🕌 Info Kajian Masjid</h1>
-        <p>Jadwal kajian, lokasi, ustadz, tema, dan link penting. Filter Senin–Ahad & urut waktu dijamin benar.</p>
+        <h1>Info Kajian</h1>
+        <p>Jadwal kajian, lokasi, ustadz, dan link penting. Gunakan filter untuk cari kajian terdekat & sesuai tema.</p>
       </div>
 
-      <div class="badge" title="Data dari Google Sheet (CSV)">
-        <span class="dot"></span>
-        <span><b style="color:var(--text)">Live</b> dari Google Sheet</span>
+      <!-- ✅ Badge hari ini -->
+      <div class="badge">
+        <b>Hari ini</b>
+        <span id="todayText">—</span>
       </div>
     </header>
 
@@ -266,7 +292,15 @@
       <section class="panel">
         <h2>Filter & Pencarian</h2>
 
-        <div class="filters">
+        <!-- ✅ Quick filter chips -->
+        <div class="chips">
+          <button class="chip" id="chipToday">⚡ <span>Hari ini</span> <span class="sub" id="chipTodaySub"></span></button>
+          <button class="chip" id="chipWeek">📅 <span>Minggu ini</span></button>
+          <button class="chip" id="chipNearest">🔥 <span>Terdekat</span></button>
+          <button class="chip" id="chipClear">🧼 <span>Clear</span></button>
+        </div>
+
+        <div class="filters" style="margin-top:12px">
           <label>
             Kata kunci
             <input id="q" placeholder="contoh: tafsir, fiqih, ramadhan, adab..." />
@@ -293,6 +327,7 @@
             </select>
           </label>
 
+          <!-- ✅ FILTER HARI -->
           <label>
             Hari
             <select id="hari">
@@ -319,9 +354,13 @@
         </div>
 
         <div class="actions">
-          <button class="btn primary" id="apply">✨ Terapkan</button>
-          <button class="btn" id="reset">↩️ Reset</button>
-          <button class="btn good" id="copyLink">🔗 Salin Link Filter</button>
+          <button class="btn primary" id="apply">Terapkan</button>
+          <button class="btn ghost" id="reset">Reset</button>
+          <button class="btn good" id="copyLink">Salin Link Filter</button>
+        </div>
+
+        <div class="note">
+          Tips: Pakai chip “Hari ini / Minggu ini / Terdekat” biar cepat nemu kajian yang kamu butuh.
         </div>
 
         <div class="count" id="count">Memuat data…</div>
@@ -329,34 +368,35 @@
 
       <aside class="panel">
         <h2>Kontak & Info</h2>
-        <p class="desc" style="margin-top:0">Punya info kajian? Kirim ke admin biar ditambahin.</p>
+        <p class="desc" style="margin-top:0">
+          Punya info kajian? Kirim ke admin biar ditambahin.
+        </p>
 
         <div class="actions">
-          <a class="btn good" id="waAdmin" target="_blank" rel="noopener">📲 WhatsApp Admin</a>
-          <a class="btn" id="igLink" target="_blank" rel="noopener">📷 Instagram</a>
-          <a class="btn" id="mapsLink" target="_blank" rel="noopener">🗺️ Lokasi Anda</a>
+          <a class="btn good" id="waAdmin" target="_blank" rel="noopener">WhatsApp Admin</a>
+          <a class="btn" id="igLink" target="_blank" rel="noopener">Instagram</a>
+          <a class="btn" id="mapsLink" target="_blank" rel="noopener">Lokasi Utama</a>
         </div>
 
-        <p class="desc" style="margin:10px 0 0;color:var(--muted)">
-          Minimal header sheet:
-          <code class="inline">title, ustadz, date, time, mode, place</code>
-        </p>
+        <div class="note">
+          Maaf Link Instagram belum ada
+        </div>
       </aside>
     </div>
 
-    <main>
+    <main style="margin-top:18px">
       <section class="cards" id="cards"></section>
     </main>
 
     <footer>
-      <div>© <span id="year"></span> Info Kajian Masjid.</div>
+      <div>© <span id="year"></span> Info Kajian.</div>
       <div><span id="footerCount"></span></div>
     </footer>
   </div>
 
 <script>
 /** =========================
- *  KONFIGURASI
+ *  KONFIGURASI WEBSITE
  *  ========================= */
 const siteConfig = {
   timezoneLabel: "WIB",
@@ -365,114 +405,130 @@ const siteConfig = {
   mainMapsUrl: "https://maps.google.com/",
 };
 
-const SHEET_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vT19VlHhkz0RgtPesT2GEFRSKdmYDAllI0I7qnh4F9SnkRzua9OFPmd2KFWShb8J54WyUbfHMmlJwAK/pub?gid=0&single=true&output=csv";
+/** =========================
+ *  DATA SOURCE (GOOGLE SHEET CSV)
+ *  ========================= */
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT19VlHhkz0RgtPesT2GEFRSKdmYDAllI0I7qnh4F9SnkRzua9OFPmd2KFWShb8J54WyUbfHMmlJwAK/pub?gid=0&single=true&output=csv";
 
 let kajianData = [];
+
+/** =========================
+ *  UTILITIES
+ *  ========================= */
 const $ = (sel) => document.querySelector(sel);
 const escapeHtml = (s="") => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const pad2 = (n) => String(n).padStart(2,"0");
 
-function monthNameID(i){ return ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][i] || ""; }
-function dayNameID(i){ return ["Ahad","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][i] || ""; }
-
+function parseDateTimeISO(dateStr, timeStr){
+  return `${dateStr}T${timeStr}:00`;
+}
+function monthNameID(monthIndex){
+  return ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][monthIndex] || "";
+}
+/** ✅ Hari Senin–Ahad */
+function dayNameID(dayIndex){
+  return ["Ahad","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][dayIndex] || "";
+}
 function toDateObj(dateStr){
   const [y,m,d] = String(dateStr).split("-").map(Number);
   return new Date(y, m-1, d);
 }
-
-/** ✅ normalisasi jam: "4:00" -> "04:00", "4" -> "04:00", "18.00" -> "18:00" */
-function normalizeTime(t=""){
-  t = String(t).trim().replace(".", ":");
-  if(!t) return "00:00";
-  if(!t.includes(":")) t += ":00";
-
-  let [hh, mm] = t.split(":").map(x => parseInt(x, 10));
-  if(Number.isNaN(hh)) hh = 0;
-  if(Number.isNaN(mm)) mm = 0;
-
-  hh = Math.max(0, Math.min(23, hh));
-  mm = Math.max(0, Math.min(59, mm));
-  return pad2(hh) + ":" + pad2(mm);
+function toDateTimeObj(dateStr, timeStr){
+  const [y,m,d] = String(dateStr).split("-").map(Number);
+  const [hh,mm] = String(timeStr || "00:00").split(":").map(Number);
+  return new Date(y, m-1, d, hh || 0, mm || 0, 0, 0);
+}
+function formatTanggalLengkap(dateStr){
+  const dt = toDateObj(dateStr);
+  return `${dayNameID(dt.getDay())}, ${dt.getDate()} ${monthNameID(dt.getMonth())} ${dt.getFullYear()}`;
+}
+function formatYYYYMMDD(dt){
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth()+1).padStart(2,"0");
+  const d = String(dt.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+function startOfWeekMonday(dt){
+  const d = new Date(dt);
+  const day = d.getDay(); // 0 Ahad ... 6 Sabtu
+  const delta = (day === 0 ? -6 : 1 - day); // mundur ke Senin
+  d.setDate(d.getDate() + delta);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function endOfWeekSunday(dt){
+  const s = startOfWeekMonday(dt);
+  const e = new Date(s);
+  e.setDate(e.getDate() + 6);
+  e.setHours(23,59,59,999);
+  return e;
 }
 
 /** =========================
- *  CSV PARSER (support quotes)
+ *  LINKS
  *  ========================= */
-function parseCSV(text){
-  const rows = [];
-  let row = [], cur = "", inQuotes = false;
+function buildGoogleCalendarUrl(item){
+  const start = item.date.replaceAll("-","") + "T" + item.time.replace(":","") + "00";
+  const endDate = item.date.replaceAll("-","");
+  const [hh,mm] = item.time.split(":").map(Number);
+  const endMinutes = hh*60 + mm + 90;
+  const endH = Math.floor(endMinutes/60) % 24;
+  const endM = endMinutes % 60;
+  const end = endDate + "T" + pad2(endH) + pad2(endM) + "00";
 
-  for(let i=0;i<text.length;i++){
-    const c = text[i], n = text[i+1];
+  const details = [
+    item.notes ? item.notes : "",
+    item.mode === "online" && item.streamUrl ? `Streaming: ${item.streamUrl}` : "",
+    item.registerUrl ? `Registrasi: ${item.registerUrl}` : "",
+  ].filter(Boolean).join("\n");
 
-    if(c === '"' && inQuotes && n === '"'){ cur += '"'; i++; continue; }
-    if(c === '"'){ inQuotes = !inQuotes; continue; }
+  const location = item.mode === "offline"
+    ? [item.place, item.address].filter(Boolean).join(" — ")
+    : (item.place || "Online");
 
-    if(c === ',' && !inQuotes){ row.push(cur); cur=""; continue; }
-
-    if((c === '\n' || c === '\r') && !inQuotes){
-      if(cur.length || row.length){ row.push(cur); rows.push(row); }
-      row=[]; cur="";
-      if(c === '\r' && n === '\n') i++;
-      continue;
-    }
-
-    cur += c;
-  }
-  if(cur.length || row.length){ row.push(cur); rows.push(row); }
-  return rows;
+  const url = new URL("https://calendar.google.com/calendar/render");
+  url.searchParams.set("action","TEMPLATE");
+  url.searchParams.set("text", item.title);
+  url.searchParams.set("dates", `${start}/${end}`);
+  url.searchParams.set("details", details);
+  url.searchParams.set("location", location);
+  return url.toString();
 }
 
-async function loadKajianFromSheet(){
-  const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
-  if(!res.ok) throw new Error("Gagal ambil data. Pastikan link CSV benar & sheet sudah Publish to web.");
-  const text = await res.text();
+function buildWhatsAppShare(item){
+  const tanggalCantik = formatTanggalLengkap(item.date);
+  const when = `${tanggalCantik} — ${item.time} ${siteConfig.timezoneLabel}`;
 
-  const rows = parseCSV(text);
-  if(rows.length < 2) return [];
+  const where = item.mode === "offline"
+    ? [item.place, item.address].filter(Boolean).join(" — ")
+    : (item.place || "Online");
 
-  const headers = rows[0].map(h => String(h||"").trim());
-  const map = {};
-  headers.forEach((h,i)=>{ map[h.toLowerCase()] = i; });
-  const idx = (name) => (name.toLowerCase() in map ? map[name.toLowerCase()] : -1);
+  const lines = [
+    `🕌 *INFO KAJIAN*`,
+    `────────────────`,
+    `📚 *${item.title}*`,
+    ``,
+    `👤 Ustadz : ${item.ustadz}`,
+    item.topic ? `🏷️ Tema : ${item.topic}` : "",
+    ``,
+    `🗓️ Waktu :`,
+    `${when}`,
+    ``,
+    `📍 Tempat :`,
+    `${where}`,
+    "",
+    item.mapsUrl ? `🗺️ Maps:\n${item.mapsUrl}` : "",
+    item.streamUrl ? `💻 Streaming:\n${item.streamUrl}` : "",
+    item.registerUrl ? `📝 Registrasi:\n${item.registerUrl}` : "",
+    item.notes ? `📌 Catatan:\n${item.notes}` : "",
+  ].filter(Boolean).join("\n");
 
-  const minimal = ["title","ustadz","date","time","mode","place"];
-  for(const k of minimal){
-    if(idx(k) === -1) throw new Error(`Header "${k}" tidak ada. Minimal harus ada: ${minimal.join(", ")}`);
-  }
-
-  const get = (r, key) => {
-    const i = idx(key);
-    return i === -1 ? "" : (r[i] || "").trim();
-  };
-
-  return rows.slice(1)
-    .filter(r => r.some(x => String(x||"").trim() !== ""))
-    .map(r => ({
-      id: get(r,"id"),
-      title: get(r,"title"),
-      ustadz: get(r,"ustadz"),
-      topic: get(r,"topic"),
-      date: get(r,"date"),
-      time: normalizeTime(get(r,"time")),
-      mode: (get(r,"mode") || "offline").toLowerCase().trim() === "online" ? "online" : "offline",
-      place: get(r,"place"),
-      address: get(r,"address"),
-      mapsUrl: get(r,"mapsUrl"),
-      streamUrl: get(r,"streamUrl"),
-      registerUrl: get(r,"registerUrl"),
-      notes: get(r,"notes"),
-    }));
+  return `https://wa.me/?text=${encodeURIComponent(lines)}`;
 }
 
-/** ✅ SORT: timestamp angka (bukan string), jadi 04:00 pasti sebelum 18:00 */
-function sortByDateTime(a,b){
-  const A = new Date(`${a.date}T${a.time}:00`).getTime();
-  const B = new Date(`${b.date}T${b.time}:00`).getTime();
-  return A - B;
-}
-
+/** =========================
+ *  FILTERS
+ *  ========================= */
 function hydrateUstadzOptions(data){
   const select = $("#ustadz");
   select.innerHTML = `<option value="">Semua</option>`;
@@ -498,7 +554,10 @@ function getFilters(){
 }
 
 function matchItem(item, f){
-  const hay = [item.title, item.topic, item.place, item.address, item.ustadz, item.notes].join(" ").toLowerCase();
+  const hay = [
+    item.title, item.topic, item.place, item.address, item.ustadz, item.notes
+  ].join(" ").toLowerCase();
+
   if(f.q && !hay.includes(f.q)) return false;
 
   const locHay = [item.place, item.address].join(" ").toLowerCase();
@@ -518,14 +577,64 @@ function matchItem(item, f){
   return true;
 }
 
+function sortByDateTime(a,b){
+  const A = parseDateTimeISO(a.date, a.time);
+  const B = parseDateTimeISO(b.date, b.time);
+  return A.localeCompare(B);
+}
+
+/** =========================
+ *  UI LOGIC
+ *  ========================= */
+function getStatusPills(item){
+  const now = new Date();
+  const start = toDateTimeObj(item.date, item.time);
+  const end = new Date(start.getTime() + 90*60*1000);
+
+  const sameDay = formatYYYYMMDD(now) === item.date;
+
+  if(now >= start && now <= end){
+    return `<span class="pill live">🔴 Sedang berlangsung</span>`;
+  }
+  if(sameDay && now < start){
+    return `<span class="pill today">⚡ Hari ini</span>`;
+  }
+
+  const diffMs = start - now;
+  const diffDays = Math.floor(diffMs / (24*60*60*1000));
+
+  if(diffDays >= 1 && diffDays <= 14){
+    return `<span class="pill hminus">⏳ H-${diffDays}</span>`;
+  }
+  return "";
+}
+
+function pickNearestUpcoming(list){
+  const now = new Date();
+  let best = null;
+  let bestTime = Infinity;
+
+  for(const item of list){
+    const dt = toDateTimeObj(item.date, item.time);
+    const t = dt.getTime();
+    if(t >= now.getTime() && t < bestTime){
+      bestTime = t;
+      best = item;
+    }
+  }
+  return best;
+}
+
 function renderCards(list){
   const wrap = $("#cards");
   wrap.innerHTML = "";
 
   if(list.length === 0){
-    wrap.innerHTML = `<div class="empty">Tidak ada kajian yang cocok dengan filter.</div>`;
+    wrap.innerHTML = `<div class="empty">Tidak ada kajian yang cocok dengan filter. Coba longgarkan filter ya.</div>`;
     return;
   }
+
+  const nearest = pickNearestUpcoming(list);
 
   for(const item of list){
     const dt = toDateObj(item.date);
@@ -533,24 +642,40 @@ function renderCards(list){
     const m = monthNameID(dt.getMonth());
     const hari = dayNameID(dt.getDay());
 
+    const startDT = toDateTimeObj(item.date, item.time);
+    const isPast = startDT.getTime() < Date.now() - (30*60*1000); // lewat 30 menit masih dianggap lewat
+
     const modePill = item.mode === "offline"
       ? `<span class="pill offline">🕌 Offline</span>`
       : `<span class="pill online">💻 Online</span>`;
 
+    const statusPill = getStatusPills(item);
+
+    const placeLine = item.mode === "offline"
+      ? `${escapeHtml(item.place)}`
+      : `${escapeHtml(item.place || "Online")}`;
+
     const links = [];
     if(item.mode === "offline" && item.mapsUrl){
-      links.push(`<a class="btn" href="${escapeHtml(item.mapsUrl)}" target="_blank" rel="noopener">🗺️ Buka Maps</a>`);
+      links.push(`<a class="btn" href="${escapeHtml(item.mapsUrl)}" target="_blank" rel="noopener">🗺️ Maps</a>`);
     }
     if(item.streamUrl){
-      links.push(`<a class="btn" href="${escapeHtml(item.streamUrl)}" target="_blank" rel="noopener">▶️ Streaming</a>`);
+      links.push(`<a class="btn" href="${escapeHtml(item.streamUrl)}" target="_blank" rel="noopener">💻 Streaming</a>`);
     }
     if(item.registerUrl){
       links.push(`<a class="btn primary" href="${escapeHtml(item.registerUrl)}" target="_blank" rel="noopener">📝 Registrasi</a>`);
     }
 
+    const gcal = buildGoogleCalendarUrl(item);
+    const wa = buildWhatsAppShare(item);
+
+    const isFeatured = nearest && (nearest.title === item.title && nearest.date === item.date && nearest.time === item.time);
+
     const card = document.createElement("article");
-    card.className = "card";
+    card.className = `card${isFeatured ? " featured" : ""}${isPast ? " past" : ""}`;
+
     card.innerHTML = `
+      ${isFeatured ? `<div class="ribbon">🔥 Kajian Terdekat</div>` : ``}
       <div class="datebox">
         <p class="day">${hari}</p>
         <p class="d">${d}</p>
@@ -558,20 +683,23 @@ function renderCards(list){
         <p class="t">${escapeHtml(item.time)} ${siteConfig.timezoneLabel}</p>
       </div>
 
-      <div style="flex:1; position:relative">
+      <div style="flex:1">
         <h3>${escapeHtml(item.title)}</h3>
 
         <div class="meta">
           ${modePill}
+          ${statusPill}
           <span class="pill">👤 ${escapeHtml(item.ustadz)}</span>
           ${item.topic ? `<span class="pill">🏷️ ${escapeHtml(item.topic)}</span>` : ``}
-          <span class="pill">📍 ${escapeHtml(item.place || "")}</span>
+          <span class="pill">📍 ${placeLine}</span>
         </div>
 
         ${item.notes ? `<p class="desc">${escapeHtml(item.notes)}</p>` : ``}
 
         <div class="buttons">
           ${links.join("")}
+          <a class="btn" href="${gcal}" target="_blank" rel="noopener">🗓️ Calendar</a>
+          <a class="btn" href="${wa}" target="_blank" rel="noopener">📤 Share WA</a>
         </div>
       </div>
     `;
@@ -621,18 +749,100 @@ function loadFiltersFromUrl(){
 }
 
 /** =========================
+ *  LOAD DATA FROM GOOGLE SHEET (CSV)
+ *  ========================= */
+async function loadKajianFromSheet(){
+  const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+  if(!res.ok) throw new Error("Gagal ambil data. Pastikan link CSV benar & sheet sudah Publish to web.");
+
+  const text = await res.text();
+
+  const rows = [];
+  let row = [], cur = "", inQuotes = false;
+
+  for(let i=0;i<text.length;i++){
+    const c = text[i], n = text[i+1];
+    if(c === '"' && inQuotes && n === '"'){ cur += '"'; i++; continue; }
+    if(c === '"'){ inQuotes = !inQuotes; continue; }
+    if(c === ',' && !inQuotes){ row.push(cur); cur=""; continue; }
+    if((c === '\n' || c === '\r') && !inQuotes){
+      if(cur.length || row.length){ row.push(cur); rows.push(row); }
+      row=[]; cur="";
+      if(c === '\r' && n === '\n') i++;
+      continue;
+    }
+    cur += c;
+  }
+  if(cur.length || row.length){ row.push(cur); rows.push(row); }
+
+  if(rows.length < 2) return [];
+
+  const headers = rows[0].map(h => String(h||"").trim());
+  const map = {};
+  headers.forEach((h,i)=>{ map[h.toLowerCase()] = i; });
+  const idx = (name) => (name.toLowerCase() in map ? map[name.toLowerCase()] : -1);
+
+  const minimal = ["title","ustadz","date","time","mode","place"];
+  for(const k of minimal){
+    if(idx(k) === -1) throw new Error(`Header "${k}" tidak ada. Minimal harus ada: ${minimal.join(", ")}`);
+  }
+
+  const get = (r, key) => {
+    const i = idx(key);
+    return i === -1 ? "" : (r[i] || "");
+  };
+
+  return rows.slice(1)
+    .filter(r => r.some(x => String(x||"").trim() !== ""))
+    .map(r => ({
+      id: get(r,"id"),
+      title: get(r,"title"),
+      ustadz: get(r,"ustadz"),
+      topic: get(r,"topic"),
+      date: get(r,"date"),
+      time: get(r,"time"),
+      mode: (get(r,"mode") || "offline").toLowerCase().trim(),
+      place: get(r,"place"),
+      address: get(r,"address"),
+      mapsUrl: get(r,"mapsUrl"),
+      streamUrl: get(r,"streamUrl"),
+      registerUrl: get(r,"registerUrl"),
+      notes: get(r,"notes"),
+    }));
+}
+
+/** =========================
  *  INIT
  *  ========================= */
+function fillTodayBadge(){
+  const now = new Date();
+  const label = `${dayNameID(now.getDay())}, ${now.getDate()} ${monthNameID(now.getMonth())} ${now.getFullYear()}`;
+  $("#todayText").textContent = `${label} (${siteConfig.timezoneLabel})`;
+  $("#chipTodaySub").textContent = `(${label})`;
+}
+
+function clearAllFilters(){
+  $("#q").value = "";
+  $("#lokasi").value = "";
+  $("#ustadz").value = "";
+  $("#mode").value = "";
+  $("#hari").value = "";
+  $("#from").value = "";
+  $("#to").value = "";
+}
+
 (async function init(){
   $("#year").textContent = new Date().getFullYear();
+  fillTodayBadge();
 
-  const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal (YYYY-MM-DD):\nJam (HH:MM):\nMode (offline/online):\nTempat:\nAlamat:\nMaps/Streaming/Registrasi:\nCatatan:");
+  const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nLokasi/Link:\nCatatan:");
   $("#waAdmin").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
   $("#igLink").href = siteConfig.instagramUrl;
   $("#mapsLink").href = siteConfig.mainMapsUrl;
 
   try{
     kajianData = await loadKajianFromSheet();
+    kajianData = kajianData.map(x => ({ ...x, mode: (x.mode === "online" ? "online" : "offline") }));
   }catch(e){
     $("#cards").innerHTML = `<div class="empty">Gagal memuat data Google Sheet: ${escapeHtml(e.message)}<br><br>
       Pastikan Sheet sudah <b>Publish to web (CSV)</b> dan header kolom sesuai.<br><br>
@@ -646,28 +856,64 @@ function loadFiltersFromUrl(){
   loadFiltersFromUrl();
   applyFilters(false);
 
+  // ✅ Buttons
   $("#apply").addEventListener("click", ()=>applyFilters(true));
   $("#reset").addEventListener("click", ()=>{
-    $("#q").value = "";
-    $("#lokasi").value = "";
-    $("#ustadz").value = "";
-    $("#mode").value = "";
-    $("#hari").value = "";
-    $("#from").value = "";
-    $("#to").value = "";
+    clearAllFilters();
     applyFilters(true);
   });
 
   $("#copyLink").addEventListener("click", async ()=>{
     try{
       await navigator.clipboard.writeText(location.href);
-      $("#copyLink").textContent = "✅ Link Tersalin";
-      setTimeout(()=>$("#copyLink").textContent="🔗 Salin Link Filter", 1200);
+      $("#copyLink").textContent = "Link Tersalin ✅";
+      setTimeout(()=>$("#copyLink").textContent="Salin Link Filter", 1200);
     }catch(e){
       alert("Gagal salin link. Coba manual: copy dari address bar.");
     }
   });
 
+  // ✅ Quick chips
+  $("#chipClear").addEventListener("click", ()=>{
+    clearAllFilters();
+    applyFilters(true);
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  $("#chipToday").addEventListener("click", ()=>{
+    clearAllFilters();
+    const now = new Date();
+    const today = formatYYYYMMDD(now);
+    $("#from").value = today;
+    $("#to").value = today;
+    $("#hari").value = dayNameID(now.getDay());
+    applyFilters(true);
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  $("#chipWeek").addEventListener("click", ()=>{
+    clearAllFilters();
+    const now = new Date();
+    const start = startOfWeekMonday(now);
+    const end = endOfWeekSunday(now);
+    $("#from").value = formatYYYYMMDD(start);
+    $("#to").value = formatYYYYMMDD(end);
+    applyFilters(true);
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  $("#chipNearest").addEventListener("click", ()=>{
+    // logic: fokus ke kajian terdekat (biar highlight) dengan membatasi range 14 hari ke depan
+    const now = new Date();
+    const from = formatYYYYMMDD(now);
+    const to = formatYYYYMMDD(new Date(now.getTime() + 14*24*60*60*1000));
+    $("#from").value = from;
+    $("#to").value = to;
+    applyFilters(true);
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  // ✅ Auto filter when typing
   let t;
   ["q","lokasi","ustadz","mode","hari","from","to"].forEach(id=>{
     $("#"+id).addEventListener("input", ()=>{
