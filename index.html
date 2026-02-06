@@ -684,34 +684,36 @@ function renderCards(list){
     card.className = `card${isFeatured ? " featured" : ""}${isPast ? " past" : ""}`;
 
     card.innerHTML = `
-      ${isFeatured ? `<div class="ribbon">🔥 Kajian Terdekat</div>` : ``}
-      <div class="datebox">
-        <p class="day">${hari}</p>
-        <p class="d">${d}</p>
-        <p class="m">${m}</p>
-        <p class="t">${escapeHtml(item.time)} ${siteConfig.timezoneLabel}</p>
-      </div>
+  <div class="datebox">
+    <p class="day">${hari}</p>
+    <p class="d">${d}</p>
+    <p class="m">${m}</p>
+    <p class="t">${escapeHtml(item.time)} ${siteConfig.timezoneLabel}</p>
+  </div>
 
-      <div style="flex:1">
-        <h3>${escapeHtml(item.title)}</h3>
+  ${isFeatured ? `<div class="ribbon">🔥 Kajian Terdekat</div>` : ``}
 
-        <div class="meta">
-          ${modePill}
-          ${statusPill}
-         <span class="pill ustadz">👤 ${escapeHtml(item.ustadz)}</span>
-          ${item.topic ? `<span class="pill">🏷️ ${escapeHtml(item.topic)}</span>` : ``}
-          <span class="pill">📍 ${placeLine}</span>
-        </div>
+  <div style="flex:1">
+    <h3>${escapeHtml(item.title)}</h3>
 
-        ${item.notes ? `<p class="desc">${escapeHtml(item.notes)}</p>` : ``}
+    <div class="meta">
+      ${modePill}
+      ${statusPill}
+      <span class="pill ustadz">👤 ${escapeHtml(item.ustadz)}</span>
+      ${item.topic ? `<span class="pill">🏷️ ${escapeHtml(item.topic)}</span>` : ``}
+      <span class="pill">📍 ${placeLine}</span>
+    </div>
 
-        <div class="buttons">
-          ${links.join("")}
-          <a class="btn" href="${gcal}" target="_blank" rel="noopener">🗓️ Calendar</a>
-          <a class="btn" href="${wa}" target="_blank" rel="noopener">📤 Share WA</a>
-        </div>
-      </div>
-    `;
+    ${item.notes ? `<p class="desc">${escapeHtml(item.notes)}</p>` : ``}
+
+    <div class="buttons">
+      ${links.join("")}
+      <a class="btn" href="${gcal}" target="_blank" rel="noopener">🗓️ Calendar</a>
+      <a class="btn" href="${wa}" target="_blank" rel="noopener">📤 Share WA</a>
+    </div>
+  </div>
+`;
+
     wrap.appendChild(card);
   }
 }
