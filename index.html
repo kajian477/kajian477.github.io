@@ -169,10 +169,18 @@
         radial-gradient(900px 220px at 10% -30%, rgba(34,197,94,.25), transparent 55%),
         rgba(0,0,0,.18);
     }
+
+    /* ✅ LEFT COLUMN (datebox + ribbon) */
+    .leftcol{
+      min-width:98px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    /* ✅ Ribbon moved under datebox (NOT absolute anymore) */
     .ribbon{
-      position:absolute;
-      top:10px;
-      right:10px;
+      position: static;
       padding:6px 10px;
       border-radius:999px;
       border:1px solid rgba(34,197,94,.45);
@@ -181,9 +189,11 @@
       font-weight:800;
       color: rgba(220,255,234,1);
       backdrop-filter: blur(8px);
-      display:flex;
+      display:inline-flex;
       gap:8px;
       align-items:center;
+      width: fit-content;
+      align-self: center; /* ganti ke flex-start kalau mau rata kiri */
     }
 
     /* ✅ Past / dim */
@@ -235,15 +245,15 @@
     .pill.today{border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.10); color: rgba(220,255,234,1)}
     .pill.hminus{border-color: rgba(124,58,237,.45); background: rgba(124,58,237,.10); color: rgba(235,230,255,1)}
 
-.pill.ustadz{
-  background: linear-gradient(135deg, #7c3aed, #5b21b6);
-  border: none;
-  color: #ffffff;
-  font-weight: 800;
-  letter-spacing: .3px;
-  box-shadow: 0 4px 14px rgba(124,58,237,.45);
-}
-    
+    .pill.ustadz{
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
+      border: none;
+      color: #ffffff;
+      font-weight: 800;
+      letter-spacing: .3px;
+      box-shadow: 0 4px 14px rgba(124,58,237,.45);
+    }
+
     .desc{margin:0 0 10px;color: rgba(238,242,255,.85);line-height:1.5}
     .card .buttons{display:flex; gap:10px; flex-wrap:wrap}
 
@@ -683,37 +693,39 @@ function renderCards(list){
     const card = document.createElement("article");
     card.className = `card${isFeatured ? " featured" : ""}${isPast ? " past" : ""}`;
 
+    // ✅ ribbon is now UNDER datebox (left column)
     card.innerHTML = `
-  <div class="datebox">
-    <p class="day">${hari}</p>
-    <p class="d">${d}</p>
-    <p class="m">${m}</p>
-    <p class="t">${escapeHtml(item.time)} ${siteConfig.timezoneLabel}</p>
-  </div>
+      <div class="leftcol">
+        <div class="datebox">
+          <p class="day">${hari}</p>
+          <p class="d">${d}</p>
+          <p class="m">${m}</p>
+          <p class="t">${escapeHtml(item.time)} ${siteConfig.timezoneLabel}</p>
+        </div>
 
-  ${isFeatured ? `<div class="ribbon">🔥 Kajian Terdekat</div>` : ``}
+        ${isFeatured ? `<div class="ribbon">🔥 Kajian Terdekat</div>` : ``}
+      </div>
 
-  <div style="flex:1">
-    <h3>${escapeHtml(item.title)}</h3>
+      <div style="flex:1">
+        <h3>${escapeHtml(item.title)}</h3>
 
-    <div class="meta">
-      ${modePill}
-      ${statusPill}
-      <span class="pill ustadz">👤 ${escapeHtml(item.ustadz)}</span>
-      ${item.topic ? `<span class="pill">🏷️ ${escapeHtml(item.topic)}</span>` : ``}
-      <span class="pill">📍 ${placeLine}</span>
-    </div>
+        <div class="meta">
+          ${modePill}
+          ${statusPill}
+          <span class="pill ustadz">👤 ${escapeHtml(item.ustadz)}</span>
+          ${item.topic ? `<span class="pill">🏷️ ${escapeHtml(item.topic)}</span>` : ``}
+          <span class="pill">📍 ${placeLine}</span>
+        </div>
 
-    ${item.notes ? `<p class="desc">${escapeHtml(item.notes)}</p>` : ``}
+        ${item.notes ? `<p class="desc">${escapeHtml(item.notes)}</p>` : ``}
 
-    <div class="buttons">
-      ${links.join("")}
-      <a class="btn" href="${gcal}" target="_blank" rel="noopener">🗓️ Calendar</a>
-      <a class="btn" href="${wa}" target="_blank" rel="noopener">📤 Share WA</a>
-    </div>
-  </div>
-`;
-
+        <div class="buttons">
+          ${links.join("")}
+          <a class="btn" href="${gcal}" target="_blank" rel="noopener">🗓️ Calendar</a>
+          <a class="btn" href="${wa}" target="_blank" rel="noopener">📤 Share WA</a>
+        </div>
+      </div>
+    `;
     wrap.appendChild(card);
   }
 }
@@ -914,7 +926,6 @@ function clearAllFilters(){
   });
 
   $("#chipNearest").addEventListener("click", ()=>{
-    // logic: fokus ke kajian terdekat (biar highlight) dengan membatasi range 14 hari ke depan
     const now = new Date();
     const from = formatYYYYMMDD(now);
     const to = formatYYYYMMDD(new Date(now.getTime() + 14*24*60*60*1000));
