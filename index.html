@@ -837,7 +837,7 @@ function clearAllFilters(){
   $("#year").textContent = new Date().getFullYear();
   fillTodayBadge();
 
-  const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nLokasi/Link:\nCatatan:");
+  const waMsg = encodeURIComponent("Assalamu'alaikum Wa Rahmatullahi Wa Barakatuh, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nMasjid/Alamat:\nCatatan:");
   $("#waAdmin").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
 
   try{
