@@ -121,9 +121,7 @@
       border-color: rgba(34,197,94,.55);
     }
     .btn.good:hover{background: linear-gradient(135deg, rgba(34,197,94,1), rgba(34,197,94,.65))}
-    .btn.ghost{
-      background: rgba(255,255,255,.04);
-    }
+    .btn.ghost{background: rgba(255,255,255,.04);}
 
     .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
     .chip{
@@ -192,10 +190,7 @@
       align-self: center;
     }
 
-    .card.past{
-      opacity:.55;
-      filter:saturate(.9);
-    }
+    .card.past{opacity:.55;filter:saturate(.9);}
 
     .datebox{
       min-width:98px;
@@ -305,6 +300,11 @@
       <section class="panel">
         <h2>Filter & Pencarian</h2>
 
+        <!-- ✅ Tips moved under title -->
+        <div class="note" style="margin-top:8px">
+          Tips: Klik “Hari ini / Minggu ini / Terdekat” biar cepat nemu kajian yang kamu butuhkan.
+        </div>
+
         <div class="chips">
           <button class="chip" id="chipToday">⚡ <span>Hari ini</span> <span class="sub" id="chipTodaySub"></span></button>
           <button class="chip" id="chipWeek">📅 <span>Minggu ini</span></button>
@@ -368,10 +368,6 @@
           <button class="btn primary" id="apply">Terapkan</button>
           <button class="btn ghost" id="reset">Reset</button>
           <button class="btn good" id="copyLink">Salin Link Filter</button>
-        </div>
-
-        <div class="note">
-          Tips: Klik “Hari ini / Minggu ini / Terdekat” biar cepat nemu kajian yang kamu butuhkan.
         </div>
 
         <div class="count" id="count">Memuat data…</div>
@@ -753,6 +749,9 @@ function loadFiltersFromUrl(){
   $("#to").value = sp.get("to") || "";
 }
 
+/** =========================
+ *  LOAD DATA FROM GOOGLE SHEET (CSV)
+ *  ========================= */
 async function loadKajianFromSheet(){
   const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
   if(!res.ok) throw new Error("Gagal ambil data. Pastikan link CSV benar & sheet sudah Publish to web.");
@@ -837,7 +836,7 @@ function clearAllFilters(){
   $("#year").textContent = new Date().getFullYear();
   fillTodayBadge();
 
-  const waMsg = encodeURIComponent("Assalamu'alaikum Wa Rahmatullahi Wa Barakatuh, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nMasjid/Alamat:\nCatatan:");
+  const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nLokasi/Link:\nCatatan:");
   $("#waAdmin").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
 
   try{
