@@ -852,14 +852,9 @@ function clearAllFilters(){
   }
 
   hydrateUstadzOptions(kajianData);
-
-// ✅ FIRST OPEN: semua filter blank
-clearAllFilters();
-
-// ✅ bersihin query param di URL juga (biar tidak keisi lagi)
-history.replaceState({}, "", location.pathname);
-
+loadFiltersFromUrl();
 applyFilters(false);
+
 
 
   $("#apply").addEventListener("click", ()=>applyFilters(true));
