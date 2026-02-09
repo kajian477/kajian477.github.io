@@ -507,7 +507,7 @@ function buildWhatsAppShare(item){
     : (item.place || "Online");
 
   const lines = [
-    `🕌 *INFO KAJIAN*`,
+    `🕌 *INFO KAJIAN SUNNAH*`,
     `────────────────`,
     `📚 *${item.title}*`,
     ``,
@@ -838,7 +838,7 @@ function fillTodayBadge(){
   $("#year").textContent = new Date().getFullYear();
   fillTodayBadge();
 
-  const waMsg = encodeURIComponent("Assalamu'alaikum admin, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nLokasi/Link:\nCatatan:");
+  const waMsg = encodeURIComponent("Bismillah, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nMasjid/Lokasi:\nCatatan:");
   $("#waAdmin").href = `https://wa.me/${siteConfig.adminWhatsApp}?text=${waMsg}`;
 
   try{
