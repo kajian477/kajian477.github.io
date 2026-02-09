@@ -300,7 +300,6 @@
       <section class="panel">
         <h2>Filter & Pencarian</h2>
 
-        <!-- ✅ Tips moved under title -->
         <div class="note" style="margin-top:8px">
           Tips: Klik “Hari ini / Minggu ini / Terdekat” biar cepat nemu kajian yang kamu butuhkan.
         </div>
@@ -326,34 +325,34 @@
           <label>
             Ustadz
             <select id="ustadz">
-  <option value="" selected></option>
-</select>
-
+              <!-- ✅ blank on first open -->
+              <option value="" selected></option>
+            </select>
           </label>
 
           <label>
             Mode
-            <<select id="mode">
-  <option value="" selected></option>
-  <option value="offline">Offline</option>
-  <option value="online">Online</option>
-</select>
-
+            <select id="mode">
+              <!-- ✅ blank on first open -->
+              <option value="" selected></option>
+              <option value="offline">Offline</option>
+              <option value="online">Online</option>
+            </select>
           </label>
 
           <label>
             Hari
-            <<select id="hari">
-  <option value="" selected></option>
-  <option value="Senin">Senin</option>
-  <option value="Selasa">Selasa</option>
-  <option value="Rabu">Rabu</option>
-  <option value="Kamis">Kamis</option>
-  <option value="Jumat">Jumat</option>
-  <option value="Sabtu">Sabtu</option>
-  <option value="Ahad">Ahad</option>
-</select>
-
+            <select id="hari">
+              <!-- ✅ blank on first open -->
+              <option value="" selected></option>
+              <option value="Senin">Senin</option>
+              <option value="Selasa">Selasa</option>
+              <option value="Rabu">Rabu</option>
+              <option value="Kamis">Kamis</option>
+              <option value="Jumat">Jumat</option>
+              <option value="Sabtu">Sabtu</option>
+              <option value="Ahad">Ahad</option>
+            </select>
           </label>
 
           <label>
@@ -413,6 +412,9 @@ const siteConfig = {
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT19VlHhkz0RgtPesT2GEFRSKdmYDAllI0I7qnh4F9SnkRzua9OFPmd2KFWShb8J54WyUbfHMmlJwAK/pub?gid=0&single=true&output=csv";
 
 let kajianData = [];
+
+/** ✅ gate: awalnya jangan render list */
+let hasAppliedOnce = false;
 
 /** =========================
  *  UTILITIES
@@ -532,6 +534,7 @@ function buildWhatsAppShare(item){
  *  ========================= */
 function hydrateUstadzOptions(data){
   const select = $("#ustadz");
+  // ✅ blank option (bukan "Semua")
   select.innerHTML = `<option value="" selected></option>`;
   const names = [...new Set(data.map(x => x.ustadz).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
   for(const n of names){
@@ -716,8 +719,27 @@ function setCounts(total, shown){
   $("#footerCount").textContent = `${shown} kajian ditampilkan`;
 }
 
+function clearAllFilters(){
+  $("#q").value = "";
+  $("#lokasi").value = "";
+  $("#ustadz").value = "";
+  $("#mode").value = "";
+  $("#hari").value = "";
+  $("#from").value = "";
+  $("#to").value = "";
+}
+
 function applyFilters(pushState=true){
   const f = getFilters();
+
+  // ✅ First open: jika belum apply dan semua filter blank -> tampilkan pesan saja
+  const allBlank = !f.q && !f.lokasi && !f.ustadz && !f.mode && !f.hari && !f.from && !f.to;
+  if(!hasAppliedOnce && allBlank){
+    $("#cards").innerHTML = `<div class="empty">Silakan pilih filter (mis. <b>Hari ini</b> / <b>Minggu ini</b> / <b>Terdekat</b>) lalu klik <b>Terapkan</b>.</div>`;
+    setCounts(kajianData.length, 0);
+    return;
+  }
+
   const filtered = kajianData
     .slice()
     .sort(sortByDateTime)
@@ -737,19 +759,6 @@ function applyFilters(pushState=true){
     url.searchParams.set("to", f.to);
     history.replaceState({}, "", url);
   }
-}
-
-function loadFiltersFromUrl(){
-  const url = new URL(location.href);
-  const sp = url.searchParams;
-
-  $("#q").value = sp.get("q") || "";
-  $("#lokasi").value = sp.get("lokasi") || "";
-  $("#ustadz").value = sp.get("ustadz") || "";
-  $("#mode").value = sp.get("mode") || "";
-  $("#hari").value = sp.get("hari") || "";
-  $("#from").value = sp.get("from") || "";
-  $("#to").value = sp.get("to") || "";
 }
 
 /** =========================
@@ -825,16 +834,6 @@ function fillTodayBadge(){
   $("#chipTodaySub").textContent = `(${label})`;
 }
 
-function clearAllFilters(){
-  $("#q").value = "";
-  $("#lokasi").value = "";
-  $("#ustadz").value = "";
-  $("#mode").value = "";
-  $("#hari").value = "";
-  $("#from").value = "";
-  $("#to").value = "";
-}
-
 (async function init(){
   $("#year").textContent = new Date().getFullYear();
   fillTodayBadge();
@@ -855,14 +854,23 @@ function clearAllFilters(){
   }
 
   hydrateUstadzOptions(kajianData);
-loadFiltersFromUrl();
-applyFilters(false);
 
+  // ✅ FIRST OPEN: filters blank + bersihin query param URL
+  clearAllFilters();
+  history.replaceState({}, "", location.pathname);
 
+  // ✅ show message only (no list)
+  applyFilters(false);
 
-  $("#apply").addEventListener("click", ()=>applyFilters(true));
+  $("#apply").addEventListener("click", ()=>{
+    hasAppliedOnce = true;
+    applyFilters(true);
+  });
+
   $("#reset").addEventListener("click", ()=>{
+    hasAppliedOnce = false;
     clearAllFilters();
+    history.replaceState({}, "", location.pathname);
     applyFilters(true);
   });
 
@@ -877,12 +885,15 @@ applyFilters(false);
   });
 
   $("#chipClear").addEventListener("click", ()=>{
+    hasAppliedOnce = false;
     clearAllFilters();
+    history.replaceState({}, "", location.pathname);
     applyFilters(true);
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
   $("#chipToday").addEventListener("click", ()=>{
+    hasAppliedOnce = true;
     clearAllFilters();
     const now = new Date();
     const today = formatYYYYMMDD(now);
@@ -894,6 +905,7 @@ applyFilters(false);
   });
 
   $("#chipWeek").addEventListener("click", ()=>{
+    hasAppliedOnce = true;
     clearAllFilters();
     const now = new Date();
     const start = startOfWeekMonday(now);
@@ -905,6 +917,7 @@ applyFilters(false);
   });
 
   $("#chipNearest").addEventListener("click", ()=>{
+    hasAppliedOnce = true;
     const now = new Date();
     const from = formatYYYYMMDD(now);
     const to = formatYYYYMMDD(new Date(now.getTime() + 14*24*60*60*1000));
@@ -914,9 +927,11 @@ applyFilters(false);
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
+  // ✅ auto apply on typing after user has applied once
   let t;
   ["q","lokasi","ustadz","mode","hari","from","to"].forEach(id=>{
     $("#"+id).addEventListener("input", ()=>{
+      if(!hasAppliedOnce) return;
       clearTimeout(t);
       t = setTimeout(()=>applyFilters(true), 250);
     });
