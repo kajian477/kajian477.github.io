@@ -415,12 +415,12 @@ const siteConfig = {
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbO_bJnqZ-ZV9w_hOCHwhQB6-KMdMb1mG9l66I7Ht0YcIguKKVuSuxwR3E-0vlIVHh5-amvMvyhkUz/pub?gid=0&single=true&output=csv";
 
 let kajianData = [];
-let autoRefreshTimer = null;
+let fullReloadTimer = null;
 
 /**
  * mode awal:
  * - saat file pertama kali dibuka, tampilkan kajian hari ini
- * - tapi kalau user kosongkan semua filter lalu klik Terapkan, hasil harus kosong
+ * - kalau semua filter kosong lalu klik Terapkan, hasil kosong
  */
 let initialTodayMode = true;
 
@@ -470,9 +470,6 @@ function endOfWeekSunday(dt){
   e.setDate(e.getDate() + 6);
   e.setHours(23,59,59,999);
   return e;
-}
-function updateSyncInfo(text){
-  $("#syncInfo").textContent = text;
 }
 
 function buildGoogleCalendarUrl(item){
@@ -536,7 +533,6 @@ function buildWhatsAppShare(item){
 
 function hydrateUstadzOptions(data){
   const select = $("#ustadz");
-  const currentValue = select.value;
   select.innerHTML = `<option value="" selected></option>`;
   const names = [...new Set(data.map(x => x.ustadz).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
   for(const n of names){
@@ -544,9 +540,6 @@ function hydrateUstadzOptions(data){
     opt.value = n;
     opt.textContent = n;
     select.appendChild(opt);
-  }
-  if(names.includes(currentValue)) {
-    select.value = currentValue;
   }
 }
 
@@ -845,28 +838,13 @@ async function loadKajianFromSheet(){
 }
 
 /** =========================
- *  AUTO REFRESH
+ *  FULL PAGE RELOAD
  *  ========================= */
-async function refreshKajianDataSilently(){
-  try{
-    const latest = await loadKajianFromSheet();
-    kajianData = latest.map(x => ({ ...x, mode: (x.mode === "online" ? "online" : "offline") }));
-    hydrateUstadzOptions(kajianData);
-    applyFilters(false);
+function startFullPageReloadTimer(){
+  if(fullReloadTimer) clearInterval(fullReloadTimer);
 
-    const now = new Date();
-    updateSyncInfo(`Sinkronisasi otomatis aktif. Update terakhir ${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}.`);
-  }catch(e){
-    updateSyncInfo(`Sinkronisasi gagal: ${e.message}`);
-    console.error("Auto refresh gagal:", e);
-  }
-}
-
-function startAutoRefresh(){
-  if(autoRefreshTimer) clearInterval(autoRefreshTimer);
-
-  autoRefreshTimer = setInterval(async ()=>{
-    await refreshKajianDataSilently();
+  fullReloadTimer = setInterval(() => {
+    window.location.reload();
   }, 60 * 1000);
 }
 
@@ -893,7 +871,6 @@ function fillTodayBadge(){
       Minimal header: <code class="inline">title, ustadz, date, time, mode, place</code>
     </div>`;
     setCounts(0, 0);
-    updateSyncInfo(`Sinkronisasi gagal: ${e.message}`);
     return;
   }
 
@@ -903,7 +880,8 @@ function fillTodayBadge(){
   setTodayFilters();
   initialTodayMode = true;
   applyFilters(true);
-  startAutoRefresh();
+
+  startFullPageReloadTimer();
 
   $("#apply").addEventListener("click", ()=>{
     initialTodayMode = false;
