@@ -325,7 +325,6 @@
           <label>
             Ustadz
             <select id="ustadz">
-              <!-- ✅ blank on first open -->
               <option value="" selected></option>
             </select>
           </label>
@@ -333,7 +332,6 @@
           <label>
             Mode
             <select id="mode">
-              <!-- ✅ blank on first open -->
               <option value="" selected></option>
               <option value="offline">Offline</option>
               <option value="online">Online</option>
@@ -343,7 +341,6 @@
           <label>
             Hari
             <select id="hari">
-              <!-- ✅ blank on first open -->
               <option value="" selected></option>
               <option value="Senin">Senin</option>
               <option value="Selasa">Selasa</option>
@@ -413,12 +410,13 @@ const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbO_bJnq
 
 let kajianData = [];
 
-/** ✅ gate: awalnya jangan render list */
-let hasAppliedOnce = false;
+/**
+ * mode awal:
+ * - saat file pertama kali dibuka, tampilkan kajian hari ini
+ * - tapi kalau user kosongkan semua filter lalu klik Terapkan, hasil harus kosong
+ */
+let initialTodayMode = true;
 
-/** =========================
- *  UTILITIES
- *  ========================= */
 const $ = (sel) => document.querySelector(sel);
 const escapeHtml = (s="") => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const pad2 = (n) => String(n).padStart(2,"0");
@@ -467,9 +465,6 @@ function endOfWeekSunday(dt){
   return e;
 }
 
-/** =========================
- *  LINKS
- *  ========================= */
 function buildGoogleCalendarUrl(item){
   const start = item.date.replaceAll("-","") + "T" + item.time.replace(":","") + "00";
   const endDate = item.date.replaceAll("-","");
@@ -529,12 +524,8 @@ function buildWhatsAppShare(item){
   return `https://wa.me/?text=${encodeURIComponent(lines)}`;
 }
 
-/** =========================
- *  FILTERS
- *  ========================= */
 function hydrateUstadzOptions(data){
   const select = $("#ustadz");
-  // ✅ blank option (bukan "Semua")
   select.innerHTML = `<option value="" selected></option>`;
   const names = [...new Set(data.map(x => x.ustadz).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
   for(const n of names){
@@ -555,6 +546,10 @@ function getFilters(){
     from: $("#from").value,
     to: $("#to").value
   };
+}
+
+function allFiltersBlank(f){
+  return !f.q && !f.lokasi && !f.ustadz && !f.mode && !f.hari && !f.from && !f.to;
 }
 
 function matchItem(item, f){
@@ -587,9 +582,6 @@ function sortByDateTime(a,b){
   return A.localeCompare(B);
 }
 
-/** =========================
- *  UI LOGIC
- *  ========================= */
 function getStatusPills(item){
   const now = new Date();
   const start = toDateTimeObj(item.date, item.time);
@@ -634,7 +626,7 @@ function renderCards(list){
   wrap.innerHTML = "";
 
   if(list.length === 0){
-    wrap.innerHTML = `<div class="empty">Tidak ada kajian yang cocok dengan filter. Coba longgarkan filter ya.</div>`;
+    wrap.innerHTML = `<div class="empty">Tidak ada kajian yang cocok dengan filter.</div>`;
     return;
   }
 
@@ -686,7 +678,6 @@ function renderCards(list){
           <p class="m">${m}</p>
           <p class="t">${escapeHtml(item.time)} ${siteConfig.timezoneLabel}</p>
         </div>
-
         ${isFeatured ? `<div class="ribbon">🔥 Kajian Terdekat</div>` : ``}
       </div>
 
@@ -729,14 +720,32 @@ function clearAllFilters(){
   $("#to").value = "";
 }
 
+function setTodayFilters(){
+  const now = new Date();
+  const today = formatYYYYMMDD(now);
+  $("#from").value = today;
+  $("#to").value = today;
+  $("#hari").value = dayNameID(now.getDay());
+}
+
 function applyFilters(pushState=true){
   const f = getFilters();
 
-  // ✅ First open: jika belum apply dan semua filter blank -> tampilkan pesan saja
-  const allBlank = !f.q && !f.lokasi && !f.ustadz && !f.mode && !f.hari && !f.from && !f.to;
-  if(!hasAppliedOnce && allBlank){
-    $("#cards").innerHTML = `<div class="empty">Silakan pilih filter (mis. <b>Hari ini</b> / <b>Minggu ini</b> / <b>Terdekat</b>) lalu klik <b>Terapkan</b>.</div>`;
+  if(allFiltersBlank(f)){
+    $("#cards").innerHTML = `<div class="empty">Filter kosong. Silakan pilih filter lalu klik <b>Terapkan</b>.</div>`;
     setCounts(kajianData.length, 0);
+
+    if(pushState){
+      const url = new URL(location.href);
+      url.searchParams.delete("q");
+      url.searchParams.delete("lokasi");
+      url.searchParams.delete("ustadz");
+      url.searchParams.delete("mode");
+      url.searchParams.delete("hari");
+      url.searchParams.delete("from");
+      url.searchParams.delete("to");
+      history.replaceState({}, "", url.pathname);
+    }
     return;
   }
 
@@ -750,20 +759,17 @@ function applyFilters(pushState=true){
 
   if(pushState){
     const url = new URL(location.href);
-    url.searchParams.set("q", f.q);
-    url.searchParams.set("lokasi", f.lokasi);
-    url.searchParams.set("ustadz", f.ustadz);
-    url.searchParams.set("mode", f.mode);
-    url.searchParams.set("hari", f.hari);
-    url.searchParams.set("from", f.from);
-    url.searchParams.set("to", f.to);
+    if(f.q) url.searchParams.set("q", f.q); else url.searchParams.delete("q");
+    if(f.lokasi) url.searchParams.set("lokasi", f.lokasi); else url.searchParams.delete("lokasi");
+    if(f.ustadz) url.searchParams.set("ustadz", f.ustadz); else url.searchParams.delete("ustadz");
+    if(f.mode) url.searchParams.set("mode", f.mode); else url.searchParams.delete("mode");
+    if(f.hari) url.searchParams.set("hari", f.hari); else url.searchParams.delete("hari");
+    if(f.from) url.searchParams.set("from", f.from); else url.searchParams.delete("from");
+    if(f.to) url.searchParams.set("to", f.to); else url.searchParams.delete("to");
     history.replaceState({}, "", url);
   }
 }
 
-/** =========================
- *  LOAD DATA FROM GOOGLE SHEET (CSV)
- *  ========================= */
 async function loadKajianFromSheet(){
   const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
   if(!res.ok) throw new Error("Gagal ambil data. Pastikan link CSV benar & sheet sudah Publish to web.");
@@ -824,9 +830,6 @@ async function loadKajianFromSheet(){
     }));
 }
 
-/** =========================
- *  INIT
- *  ========================= */
 function fillTodayBadge(){
   const now = new Date();
   const label = `${dayNameID(now.getDay())}, ${now.getDate()} ${monthNameID(now.getMonth())} ${now.getFullYear()}`;
@@ -855,22 +858,20 @@ function fillTodayBadge(){
 
   hydrateUstadzOptions(kajianData);
 
-  // ✅ FIRST OPEN: filters blank + bersihin query param URL
   clearAllFilters();
-  history.replaceState({}, "", location.pathname);
-
-  // ✅ show message only (no list)
-  applyFilters(false);
+  setTodayFilters();
+  initialTodayMode = true;
+  applyFilters(true);
 
   $("#apply").addEventListener("click", ()=>{
-    hasAppliedOnce = true;
+    initialTodayMode = false;
     applyFilters(true);
   });
 
   $("#reset").addEventListener("click", ()=>{
-    hasAppliedOnce = false;
     clearAllFilters();
-    history.replaceState({}, "", location.pathname);
+    setTodayFilters();
+    initialTodayMode = true;
     applyFilters(true);
   });
 
@@ -885,56 +886,44 @@ function fillTodayBadge(){
   });
 
   $("#chipClear").addEventListener("click", ()=>{
-    hasAppliedOnce = false;
     clearAllFilters();
+    initialTodayMode = false;
+    $("#cards").innerHTML = `<div class="empty">Filter sudah dikosongkan. Silakan klik <b>Terapkan</b> atau pilih chip filter cepat.</div>`;
+    setCounts(kajianData.length, 0);
     history.replaceState({}, "", location.pathname);
-    applyFilters(true);
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
   $("#chipToday").addEventListener("click", ()=>{
-    hasAppliedOnce = true;
     clearAllFilters();
-    const now = new Date();
-    const today = formatYYYYMMDD(now);
-    $("#from").value = today;
-    $("#to").value = today;
-    $("#hari").value = dayNameID(now.getDay());
+    setTodayFilters();
+    initialTodayMode = false;
     applyFilters(true);
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
   $("#chipWeek").addEventListener("click", ()=>{
-    hasAppliedOnce = true;
     clearAllFilters();
     const now = new Date();
     const start = startOfWeekMonday(now);
     const end = endOfWeekSunday(now);
     $("#from").value = formatYYYYMMDD(start);
     $("#to").value = formatYYYYMMDD(end);
+    initialTodayMode = false;
     applyFilters(true);
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
   $("#chipNearest").addEventListener("click", ()=>{
-    hasAppliedOnce = true;
+    clearAllFilters();
     const now = new Date();
     const from = formatYYYYMMDD(now);
     const to = formatYYYYMMDD(new Date(now.getTime() + 14*24*60*60*1000));
     $("#from").value = from;
     $("#to").value = to;
+    initialTodayMode = false;
     applyFilters(true);
     window.scrollTo({top:0, behavior:"smooth"});
-  });
-
-  // ✅ auto apply on typing after user has applied once
-  let t;
-  ["q","lokasi","ustadz","mode","hari","from","to"].forEach(id=>{
-    $("#"+id).addEventListener("input", ()=>{
-      if(!hasAppliedOnce) return;
-      clearTimeout(t);
-      t = setTimeout(()=>applyFilters(true), 250);
-    });
   });
 })();
 </script>
