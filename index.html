@@ -279,6 +279,11 @@
       border-radius: 8px;
       border:1px solid var(--border);
     }
+    .sync-badge{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+    }
   </style>
 </head>
 
@@ -288,6 +293,7 @@
       <div class="brand">
         <h1>Info Kajian Sunnah</h1>
         <p>Gunakan filter untuk cari kajian terdekat & sesuai tema.</p>
+        <div class="sync-badge" id="syncInfo">Sinkronisasi otomatis aktif.</div>
       </div>
 
       <div class="badge">
@@ -409,6 +415,7 @@ const siteConfig = {
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbO_bJnqZ-ZV9w_hOCHwhQB6-KMdMb1mG9l66I7Ht0YcIguKKVuSuxwR3E-0vlIVHh5-amvMvyhkUz/pub?gid=0&single=true&output=csv";
 
 let kajianData = [];
+let autoRefreshTimer = null;
 
 /**
  * mode awal:
@@ -463,6 +470,9 @@ function endOfWeekSunday(dt){
   e.setDate(e.getDate() + 6);
   e.setHours(23,59,59,999);
   return e;
+}
+function updateSyncInfo(text){
+  $("#syncInfo").textContent = text;
 }
 
 function buildGoogleCalendarUrl(item){
@@ -526,6 +536,7 @@ function buildWhatsAppShare(item){
 
 function hydrateUstadzOptions(data){
   const select = $("#ustadz");
+  const currentValue = select.value;
   select.innerHTML = `<option value="" selected></option>`;
   const names = [...new Set(data.map(x => x.ustadz).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
   for(const n of names){
@@ -533,6 +544,9 @@ function hydrateUstadzOptions(data){
     opt.value = n;
     opt.textContent = n;
     select.appendChild(opt);
+  }
+  if(names.includes(currentValue)) {
+    select.value = currentValue;
   }
 }
 
@@ -830,6 +844,32 @@ async function loadKajianFromSheet(){
     }));
 }
 
+/** =========================
+ *  AUTO REFRESH
+ *  ========================= */
+async function refreshKajianDataSilently(){
+  try{
+    const latest = await loadKajianFromSheet();
+    kajianData = latest.map(x => ({ ...x, mode: (x.mode === "online" ? "online" : "offline") }));
+    hydrateUstadzOptions(kajianData);
+    applyFilters(false);
+
+    const now = new Date();
+    updateSyncInfo(`Sinkronisasi otomatis aktif. Update terakhir ${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}.`);
+  }catch(e){
+    updateSyncInfo(`Sinkronisasi gagal: ${e.message}`);
+    console.error("Auto refresh gagal:", e);
+  }
+}
+
+function startAutoRefresh(){
+  if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+
+  autoRefreshTimer = setInterval(async ()=>{
+    await refreshKajianDataSilently();
+  }, 60 * 1000);
+}
+
 function fillTodayBadge(){
   const now = new Date();
   const label = `${dayNameID(now.getDay())}, ${now.getDate()} ${monthNameID(now.getMonth())} ${now.getFullYear()}`;
@@ -853,6 +893,7 @@ function fillTodayBadge(){
       Minimal header: <code class="inline">title, ustadz, date, time, mode, place</code>
     </div>`;
     setCounts(0, 0);
+    updateSyncInfo(`Sinkronisasi gagal: ${e.message}`);
     return;
   }
 
@@ -862,6 +903,7 @@ function fillTodayBadge(){
   setTodayFilters();
   initialTodayMode = true;
   applyFilters(true);
+  startAutoRefresh();
 
   $("#apply").addEventListener("click", ()=>{
     initialTodayMode = false;
