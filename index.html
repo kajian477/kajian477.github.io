@@ -1,8 +1,983 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Info Kajian</title>
-  <meta name="description" content="Informasi kajian terbaru: jadwal, lokasi, ustadz, tema, dan link pendaftaran/streaming." />
- 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AyoKajian - Kajian Hari Ini</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #16a34a;
+      --primary-dark: #15803d;
+      --danger: #dc2626;
+      --warning-bg: #fff7ed;
+      --warning-text: #9a3412;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 16px 48px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: #fff;
+      padding: 28px 24px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      margin: 0;
+      opacity: 0.96;
+      line-height: 1.5;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .pill.warning {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+      border-color: #fed7aa;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      padding: 18px 18px 0;
+    }
+
+    .panel-header h2,
+    .panel-header h3 {
+      margin: 0 0 6px;
+      font-size: 20px;
+    }
+
+    .panel-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .panel-body {
+      padding: 18px;
+    }
+
+    .filters {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 12px;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #86efac;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+    }
+
+    .filter-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      min-height: 44px;
+      padding: 0 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-link {
+      background: transparent;
+      color: var(--primary-dark);
+      padding: 0;
+      min-height: auto;
+    }
+
+    .content-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .content-top h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .content-top p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .view-state {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    .tag.cancelled {
+      background: #fef2f2;
+      color: var(--danger);
+      border-color: #fecaca;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.35;
+    }
+
+    .meta {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta strong {
+      color: var(--text);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: 4px;
+    }
+
+    .card .btn {
+      min-height: 40px;
+    }
+
+    .empty-box,
+    .loading-box,
+    .error-box {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      border: 1px dashed #cbd5e1;
+      color: var(--muted);
+    }
+
+    .error-box {
+      border-style: solid;
+      border-color: #fecaca;
+      background: #fef2f2;
+      color: #991b1b;
+      text-align: left;
+      display: none;
+      line-height: 1.6;
+    }
+
+    .debug {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow: auto;
+    }
+
+    .small-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .content-top {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>AyoKajian</h1>
+      <p id="heroSubtitle">Memuat kajian hari ini...</p>
+    </section>
+
+    <div class="toolbar">
+      <div class="pill" id="countPill">0 kajian</div>
+      <div class="pill warning" id="sourcePill">Sumber: memuat...</div>
+    </div>
+
+    <div class="layout">
+      <aside class="panel">
+        <div class="panel-header">
+          <h3>Filter Kajian</h3>
+          <p>
+            Saat halaman dibuka, default menampilkan kajian hari ini.
+            Kalau semua filter kosong lalu klik <strong>Terapkan</strong>,
+            hasilnya akan kosong.
+          </p>
+        </div>
+
+        <div class="panel-body">
+          <form id="filterForm" class="filters">
+            <div class="field">
+              <label for="keywordInput">Kata kunci</label>
+              <input id="keywordInput" name="keyword" type="text" placeholder="Judul, topik, catatan" />
+            </div>
+
+            <div class="field">
+              <label for="ustadzInput">Ustadz</label>
+              <input id="ustadzInput" name="ustadz" type="text" placeholder="Nama ustadz" />
+            </div>
+
+            <div class="field">
+              <label for="tempatInput">Tempat</label>
+              <input id="tempatInput" name="tempat" type="text" placeholder="Masjid, kota, alamat" />
+            </div>
+
+            <div class="field">
+              <label for="tanggalInput">Tanggal</label>
+              <input id="tanggalInput" name="tanggal" type="date" />
+            </div>
+
+            <div class="field">
+              <label for="modeInput">Mode</label>
+              <select id="modeInput" name="mode">
+                <option value="">Semua mode</option>
+                <option value="Offline">Offline</option>
+                <option value="Online">Online</option>
+              </select>
+            </div>
+
+            <div class="filter-actions">
+              <button class="btn btn-primary" type="submit">Terapkan</button>
+              <button class="btn btn-secondary" type="button" id="resetBtn">Reset</button>
+              <button class="btn btn-link" type="button" id="showTodayBtn">Lihat Hari Ini</button>
+            </div>
+          </form>
+
+          <div class="small-note">
+            Untuk kestabilan, isi <code>APPS_SCRIPT_URL</code> di script bawah. Kalau dikosongkan,
+            halaman akan mencoba fetch langsung ke Google Sheets CSV.
+          </div>
+        </div>
+      </aside>
+
+      <main>
+        <div class="content-top">
+          <div>
+            <h2 id="sectionTitle">Kajian Hari Ini</h2>
+            <p id="sectionSubtitle">Memuat data...</p>
+          </div>
+          <div class="view-state" id="viewState">Mode: Hari Ini</div>
+        </div>
+
+        <div id="loadingBox" class="loading-box">Memuat data kajian...</div>
+        <div id="emptyBox" class="empty-box hidden">Tidak ada data untuk tampilan ini.</div>
+        <div id="errorBox" class="error-box"></div>
+        <div id="list" class="grid hidden"></div>
+        <div id="debugBox" class="debug"></div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * =========================
+     * KONFIGURASI SUMBER DATA
+     * =========================
+     *
+     * Mode terbaik untuk production:
+     * 1) Isi APPS_SCRIPT_URL dengan URL Web App Google Apps Script
+     * 2) Kalau kosong, sistem fallback ke CSV Google Sheets
+     *
+     * Contoh APPS_SCRIPT_URL:
+     * https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxxxxxxxxxx/exec
+     *
+     * Endpoint Apps Script yang disarankan:
+     * - GET ?format=json   -> return JSON array
+     * - atau langsung GET  -> return JSON array
+     */
+
+    const APPS_SCRIPT_URL = ""; // <-- isi ini untuk production
+    const GOOGLE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbO_bJnqZ-ZV9w_hOCHwhQB6-KMdMb1mG9l66I7Ht0YcIguKKVuSuxwR3E-0vlIVHh5-amvMvyhkUz/pub?gid=0&single=true&output=csv";
+
+    const STATE = {
+      allEvents: [],
+      currentView: "today", // today | filter
+      renderedEvents: [],
+      sourceUsed: "-"
+    };
+
+    const elements = {
+      heroSubtitle: document.getElementById("heroSubtitle"),
+      countPill: document.getElementById("countPill"),
+      sourcePill: document.getElementById("sourcePill"),
+      sectionTitle: document.getElementById("sectionTitle"),
+      sectionSubtitle: document.getElementById("sectionSubtitle"),
+      viewState: document.getElementById("viewState"),
+      loadingBox: document.getElementById("loadingBox"),
+      emptyBox: document.getElementById("emptyBox"),
+      errorBox: document.getElementById("errorBox"),
+      list: document.getElementById("list"),
+      debugBox: document.getElementById("debugBox"),
+      filterForm: document.getElementById("filterForm"),
+      resetBtn: document.getElementById("resetBtn"),
+      showTodayBtn: document.getElementById("showTodayBtn"),
+      keywordInput: document.getElementById("keywordInput"),
+      ustadzInput: document.getElementById("ustadzInput"),
+      tempatInput: document.getElementById("tempatInput"),
+      tanggalInput: document.getElementById("tanggalInput"),
+      modeInput: document.getElementById("modeInput")
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getTodayWIB() {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Jakarta",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(new Date());
+
+      const year = parts.find((p) => p.type === "year")?.value ?? "";
+      const month = parts.find((p) => p.type === "month")?.value ?? "";
+      const day = parts.find((p) => p.type === "day")?.value ?? "";
+
+      return `${year}-${month}-${day}`;
+    }
+
+    function normalizeDate(value) {
+      const clean = String(value ?? "")
+        .replace(/\uFEFF/g, "")
+        .trim();
+
+      const ymd = clean.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (ymd) {
+        return `${ymd[1]}-${ymd[2]}-${ymd[3]}`;
+      }
+
+      const mdy = clean.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (mdy) {
+        const month = mdy[1].padStart(2, "0");
+        const day = mdy[2].padStart(2, "0");
+        const year = mdy[3];
+        return `${year}-${month}-${day}`;
+      }
+
+      return "";
+    }
+
+    function normalizeTime(value) {
+      const clean = String(value ?? "").trim();
+      const hm = clean.match(/^(\d{1,2}):(\d{2})$/);
+      if (!hm) return "";
+      return `${hm[1].padStart(2, "0")}:${hm[2]}`;
+    }
+
+    function formatDateID(dateStr) {
+      const normalized = normalizeDate(dateStr);
+      if (!normalized) return "-";
+
+      const [year, month, day] = normalized.split("-").map(Number);
+      const date = new Date(year, month - 1, day);
+
+      return new Intl.DateTimeFormat("id-ID", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      }).format(date);
+    }
+
+    function isCancelled(item) {
+      const text = `${item.title || ""} ${item.notes || ""}`.toLowerCase();
+      return text.includes("diliburkan");
+    }
+
+    function sortByDateTime(items) {
+      return [...items].sort((a, b) => {
+        const dateA = normalizeDate(a.date) || "9999-99-99";
+        const dateB = normalizeDate(b.date) || "9999-99-99";
+        if (dateA !== dateB) return dateA.localeCompare(dateB);
+
+        const timeA = normalizeTime(a.time) || "99:99";
+        const timeB = normalizeTime(b.time) || "99:99";
+        return timeA.localeCompare(timeB);
+      });
+    }
+
+    function parseCSV(csvText) {
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < csvText.length; i++) {
+        const char = csvText[i];
+        const nextChar = csvText[i + 1];
+
+        if (char === '"') {
+          if (inQuotes && nextChar === '"') {
+            cell += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === "," && !inQuotes) {
+          row.push(cell);
+          cell = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+          if (char === "\r" && nextChar === "\n") {
+            i++;
+          }
+
+          if (cell.length > 0 || row.length > 0) {
+            row.push(cell);
+            rows.push(row);
+            row = [];
+            cell = "";
+          }
+        } else {
+          cell += char;
+        }
+      }
+
+      if (cell.length > 0 || row.length > 0) {
+        row.push(cell);
+        rows.push(row);
+      }
+
+      if (rows.length === 0) return [];
+
+      const headers = rows[0].map((header) => String(header).trim());
+
+      return rows.slice(1).map((cols) => {
+        const item = {};
+        headers.forEach((header, index) => {
+          item[header] = String(cols[index] ?? "").trim();
+        });
+        return sanitizeEvent(item);
+      });
+    }
+
+    function sanitizeEvent(item) {
+      return {
+        id: String(item.id || "").trim(),
+        title: String(item.title || "").trim(),
+        ustadz: String(item.ustadz || "").trim(),
+        topic: String(item.topic || "").trim(),
+        date: normalizeDate(item.date),
+        time: normalizeTime(item.time),
+        mode: String(item.mode || "").trim(),
+        place: String(item.place || "").trim(),
+        address: String(item.address || "").trim(),
+        mapsUrl: String(item.mapsUrl || "").trim(),
+        streamUrl: String(item.streamUrl || "").trim(),
+        registerUrl: String(item.registerUrl || "").trim(),
+        notes: String(item.notes || "").trim(),
+        createdAt: String(item.createdAt || "").trim(),
+        updatedAt: String(item.updatedAt || "").trim()
+      };
+    }
+
+    async function fetchFromAppsScript() {
+      if (!APPS_SCRIPT_URL.trim()) {
+        throw new Error("APPS_SCRIPT_URL belum diisi.");
+      }
+
+      const url = `${APPS_SCRIPT_URL}${APPS_SCRIPT_URL.includes("?") ? "&" : "?"}format=json&_=${Date.now()}`;
+      const response = await fetch(url, {
+        method: "GET",
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error(`Apps Script HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error("Response Apps Script bukan array JSON.");
+      }
+
+      return data.map(sanitizeEvent);
+    }
+
+    async function fetchFromGoogleCsv() {
+      const response = await fetch(`${GOOGLE_CSV_URL}&_=${Date.now()}`, {
+        method: "GET",
+        mode: "cors",
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error(`Google CSV HTTP ${response.status}`);
+      }
+
+      const csvText = await response.text();
+      return parseCSV(csvText);
+    }
+
+    async function loadData() {
+      try {
+        const appsScriptItems = await fetchFromAppsScript();
+        STATE.sourceUsed = "Apps Script JSON";
+        return appsScriptItems;
+      } catch (appsScriptError) {
+        try {
+          const csvItems = await fetchFromGoogleCsv();
+          STATE.sourceUsed = "Google Sheets CSV";
+          return csvItems;
+        } catch (csvError) {
+          throw new Error(
+            [
+              `Gagal dari Apps Script: ${appsScriptError.message}`,
+              `Gagal dari Google CSV: ${csvError.message}`
+            ].join(" | ")
+          );
+        }
+      }
+    }
+
+    function getTodayEvents(events) {
+      const today = getTodayWIB();
+      return sortByDateTime(events.filter((item) => item.date === today));
+    }
+
+    function getFilterValues() {
+      return {
+        keyword: elements.keywordInput.value.trim(),
+        ustadz: elements.ustadzInput.value.trim(),
+        tempat: elements.tempatInput.value.trim(),
+        tanggal: normalizeDate(elements.tanggalInput.value.trim()),
+        mode: elements.modeInput.value.trim()
+      };
+    }
+
+    function applyFilters(events, filters) {
+      const keyword = String(filters.keyword || "").trim().toLowerCase();
+      const ustadz = String(filters.ustadz || "").trim().toLowerCase();
+      const tempat = String(filters.tempat || "").trim().toLowerCase();
+      const tanggal = normalizeDate(filters.tanggal || "");
+      const mode = String(filters.mode || "").trim().toLowerCase();
+
+      const isAllEmpty = !keyword && !ustadz && !tempat && !tanggal && !mode;
+
+      if (isAllEmpty) {
+        return [];
+      }
+
+      return sortByDateTime(
+        events.filter((event) => {
+          const searchableKeyword = [
+            event.title,
+            event.topic,
+            event.notes
+          ].join(" ").toLowerCase();
+
+          const searchableTempat = [
+            event.place,
+            event.address
+          ].join(" ").toLowerCase();
+
+          const matchKeyword = !keyword || searchableKeyword.includes(keyword);
+          const matchUstadz = !ustadz || String(event.ustadz || "").toLowerCase().includes(ustadz);
+          const matchTempat = !tempat || searchableTempat.includes(tempat);
+          const matchTanggal = !tanggal || normalizeDate(event.date) === tanggal;
+          const matchMode = !mode || String(event.mode || "").toLowerCase() === mode;
+
+          return matchKeyword && matchUstadz && matchTempat && matchTanggal && matchMode;
+        })
+      );
+    }
+
+    function setViewMeta(title, subtitle, modeLabel) {
+      elements.sectionTitle.textContent = title;
+      elements.sectionSubtitle.textContent = subtitle;
+      elements.viewState.textContent = `Mode: ${modeLabel}`;
+      elements.heroSubtitle.textContent = subtitle;
+    }
+
+    function createCard(item) {
+      const cancelled = isCancelled(item);
+
+      const mapsButton = item.mapsUrl
+        ? `<a class="btn btn-primary" href="${escapeHtml(item.mapsUrl)}" target="_blank" rel="noopener noreferrer">Buka Maps</a>`
+        : "";
+
+      const streamButton = item.streamUrl
+        ? `<a class="btn btn-secondary" href="${escapeHtml(item.streamUrl)}" target="_blank" rel="noopener noreferrer">Streaming</a>`
+        : "";
+
+      const registerButton = item.registerUrl
+        ? `<a class="btn btn-secondary" href="${escapeHtml(item.registerUrl)}" target="_blank" rel="noopener noreferrer">Daftar</a>`
+        : "";
+
+      return `
+        <article class="card">
+          <div class="tags">
+            <span class="tag">${escapeHtml(item.mode || "Tanpa mode")}</span>
+            ${item.topic ? `<span class="tag">${escapeHtml(item.topic)}</span>` : ""}
+            ${cancelled ? `<span class="tag cancelled">Diliburkan</span>` : ""}
+          </div>
+
+          <h3>${escapeHtml(item.title || "Tanpa judul")}</h3>
+
+          <div class="meta">
+            <div><strong>Ustadz:</strong> ${escapeHtml(item.ustadz || "-")}</div>
+            <div><strong>Tanggal:</strong> ${escapeHtml(formatDateID(item.date))}</div>
+            <div><strong>Jam:</strong> ${escapeHtml(item.time || "-")}</div>
+            <div><strong>Tempat:</strong> ${escapeHtml(item.place || "-")}</div>
+            <div><strong>Alamat:</strong> ${escapeHtml(item.address || "-")}</div>
+            ${item.notes ? `<div><strong>Catatan:</strong> ${escapeHtml(item.notes)}</div>` : ""}
+          </div>
+
+          <div class="actions">
+            ${mapsButton}
+            ${streamButton}
+            ${registerButton}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderEvents(items) {
+      STATE.renderedEvents = items;
+      elements.countPill.textContent = `${items.length} kajian`;
+      elements.list.innerHTML = "";
+
+      if (!items.length) {
+        elements.list.classList.add("hidden");
+
+        if (STATE.currentView === "filter") {
+          const filters = getFilterValues();
+          const isAllEmpty =
+            !filters.keyword &&
+            !filters.ustadz &&
+            !filters.tempat &&
+            !filters.tanggal &&
+            !filters.mode;
+
+          elements.emptyBox.textContent = isAllEmpty
+            ? "Filter masih kosong. Silakan isi minimal satu filter lalu klik Terapkan."
+            : "Tidak ada hasil yang cocok dengan filter.";
+        } else {
+          elements.emptyBox.textContent = "Tidak ada kajian untuk tampilan ini.";
+        }
+
+        elements.emptyBox.classList.remove("hidden");
+        return;
+      }
+
+      elements.emptyBox.classList.add("hidden");
+      elements.list.classList.remove("hidden");
+      elements.list.innerHTML = items.map(createCard).join("");
+    }
+
+    function renderTodayView() {
+      const today = getTodayWIB();
+      const todayEvents = getTodayEvents(STATE.allEvents);
+      STATE.currentView = "today";
+
+      setViewMeta(
+        "Kajian Hari Ini",
+        `Menampilkan jadwal untuk ${formatDateID(today)}`,
+        "Hari Ini"
+      );
+
+      renderEvents(todayEvents);
+      updateDebug();
+    }
+
+    function renderFilterView() {
+      const filters = getFilterValues();
+      const filtered = applyFilters(STATE.allEvents, filters);
+      STATE.currentView = "filter";
+
+      const filterSummary = [
+        filters.keyword ? `keyword: ${filters.keyword}` : "",
+        filters.ustadz ? `ustadz: ${filters.ustadz}` : "",
+        filters.tempat ? `tempat: ${filters.tempat}` : "",
+        filters.tanggal ? `tanggal: ${filters.tanggal}` : "",
+        filters.mode ? `mode: ${filters.mode}` : ""
+      ].filter(Boolean).join(" | ");
+
+      const isAllEmpty =
+        !filters.keyword &&
+        !filters.ustadz &&
+        !filters.tempat &&
+        !filters.tanggal &&
+        !filters.mode;
+
+      setViewMeta(
+        "Hasil Filter",
+        isAllEmpty
+          ? "Semua filter kosong, jadi hasil tidak ditampilkan."
+          : `Filter aktif: ${filterSummary}`,
+        "Filter"
+      );
+
+      renderEvents(filtered);
+      updateDebug();
+    }
+
+    function resetFilters() {
+      elements.filterForm.reset();
+    }
+
+    function showError(message) {
+      elements.errorBox.style.display = "block";
+      elements.errorBox.innerHTML = `
+        <strong>Gagal memuat data.</strong><br />
+        ${escapeHtml(message)}<br /><br />
+        <strong>Saran:</strong><br />
+        1. Isi <code>APPS_SCRIPT_URL</code> lalu pakai Apps Script sebagai sumber JSON.<br />
+        2. Jangan hanya mengandalkan fetch langsung ke Google Sheets CSV dari browser.
+      `;
+    }
+
+    function hideError() {
+      elements.errorBox.style.display = "none";
+      elements.errorBox.textContent = "";
+    }
+
+    function updateDebug(extra = "") {
+      const today = getTodayWIB();
+      const filters = getFilterValues();
+
+      elements.sourcePill.textContent = `Sumber: ${STATE.sourceUsed}`;
+      elements.debugBox.textContent =
+`DEBUG AYO KAJIAN
+todayWIB        : ${today}
+sourceUsed      : ${STATE.sourceUsed}
+allEvents       : ${STATE.allEvents.length}
+currentView     : ${STATE.currentView}
+renderedEvents  : ${STATE.renderedEvents.length}
+filters.keyword : ${filters.keyword || "-"}
+filters.ustadz  : ${filters.ustadz || "-"}
+filters.tempat  : ${filters.tempat || "-"}
+filters.tanggal : ${filters.tanggal || "-"}
+filters.mode    : ${filters.mode || "-"}
+titlesRendered  : ${STATE.renderedEvents.map((x) => x.title || "(tanpa judul)").join(", ") || "-"}
+${extra}`.trim();
+    }
+
+    async function init() {
+      hideError();
+      elements.loadingBox.classList.remove("hidden");
+      elements.emptyBox.classList.add("hidden");
+      elements.list.classList.add("hidden");
+      elements.list.innerHTML = "";
+      updateDebug("status          : init");
+
+      try {
+        const items = await loadData();
+
+        STATE.allEvents = items.filter((item) => item.date);
+        elements.loadingBox.classList.add("hidden");
+
+        renderTodayView();
+      } catch (error) {
+        elements.loadingBox.classList.add("hidden");
+        elements.emptyBox.classList.add("hidden");
+        elements.list.classList.add("hidden");
+        showError(error.message);
+        updateDebug(`status          : error\nmessage         : ${error.message}`);
+      }
+    }
+
+    elements.filterForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      renderFilterView();
+    });
+
+    elements.resetBtn.addEventListener("click", () => {
+      resetFilters();
+      renderTodayView();
+    });
+
+    elements.showTodayBtn.addEventListener("click", () => {
+      renderTodayView();
+    });
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
