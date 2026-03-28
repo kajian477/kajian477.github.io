@@ -60,10 +60,10 @@
       header{flex-direction:column}
       .badge{width:fit-content}
     }
-header {
-  padding: 4px 4px 2px; /* sebelumnya lebih besar */
-}
-    
+    header {
+      padding: 4px 4px 2px;
+    }
+
     .panel{
       background: rgba(255,255,255,.05);
       border:1px solid var(--border);
@@ -283,7 +283,6 @@ header {
       border-radius: 8px;
       border:1px solid var(--border);
     }
-    
   </style>
 </head>
 
@@ -292,7 +291,6 @@ header {
     <header>
       <div class="brand">
         <h1>Info Kajian Sunnah</h1>
-                
       </div>
 
       <div class="badge">
@@ -373,8 +371,6 @@ header {
           <button class="btn ghost" id="reset">Reset</button>
           <button class="btn good" id="copyLink">Salin Link Filter</button>
         </div>
-
-        
       </section>
 
       <aside class="panel">
@@ -405,6 +401,7 @@ header {
  *  ========================= */
 const siteConfig = {
   timezoneLabel: "WIB",
+  timeZone: "Asia/Jakarta",
   adminWhatsApp: "6282134864427",
 };
 
@@ -440,11 +437,6 @@ function toDateObj(dateStr){
   const [y,m,d] = String(dateStr).split("-").map(Number);
   return new Date(y, m-1, d);
 }
-function toDateTimeObj(dateStr, timeStr){
-  const [y,m,d] = String(dateStr).split("-").map(Number);
-  const [hh,mm] = String(timeStr || "00:00").split(":").map(Number);
-  return new Date(y, m-1, d, hh || 0, mm || 0, 0, 0);
-}
 function formatTanggalLengkap(dateStr){
   const dt = toDateObj(dateStr);
   return `${dayNameID(dt.getDay())}, ${dt.getDate()} ${monthNameID(dt.getMonth())} ${dt.getFullYear()}`;
@@ -455,6 +447,79 @@ function formatYYYYMMDD(dt){
   const d = String(dt.getDate()).padStart(2,"0");
   return `${y}-${m}-${d}`;
 }
+
+/** =========================
+ *  WIB HELPERS
+ *  ========================= */
+function getWibNowParts(){
+  const now = new Date();
+
+  const dateParts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: siteConfig.timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+
+  const timeParts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: siteConfig.timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(now);
+
+  const weekdayShort = new Intl.DateTimeFormat("en-US", {
+    timeZone: siteConfig.timeZone,
+    weekday: "short",
+  }).format(now);
+
+  const get = (parts, type) => parts.find(p => p.type === type)?.value || "";
+
+  const year = Number(get(dateParts, "year"));
+  const month = Number(get(dateParts, "month"));
+  const day = Number(get(dateParts, "day"));
+  const hour = Number(get(timeParts, "hour"));
+  const minute = Number(get(timeParts, "minute"));
+  const second = Number(get(timeParts, "second"));
+
+  const weekdayMap = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
+  };
+
+  return {
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    weekday: weekdayMap[weekdayShort] ?? 0,
+    dateStr: `${year}-${pad2(month)}-${pad2(day)}`,
+    timeStr: `${pad2(hour)}:${pad2(minute)}`,
+  };
+}
+
+/**
+ * Konversi tanggal/jam WIB dari sheet menjadi UTC timestamp absolut
+ */
+function wibDateTimeToUtcMs(dateStr, timeStr = "00:00"){
+  const [y, m, d] = String(dateStr).split("-").map(Number);
+  const [hh, mm] = String(timeStr).split(":").map(Number);
+  return Date.UTC(y, (m - 1), d, (hh || 0) - 7, mm || 0, 0, 0);
+}
+
+function wibDateOnlyToJsDate(dateStr){
+  const [y,m,d] = String(dateStr).split("-").map(Number);
+  return new Date(y, m - 1, d, 0, 0, 0, 0);
+}
+
 function startOfWeekMonday(dt){
   const d = new Date(dt);
   const day = d.getDay();
@@ -589,20 +654,22 @@ function sortByDateTime(a,b){
 }
 
 function getStatusPills(item){
-  const now = new Date();
-  const start = toDateTimeObj(item.date, item.time);
-  const end = new Date(start.getTime() + 90*60*1000);
+  const nowMs = Date.now();
+  const nowWib = getWibNowParts();
 
-  const sameDay = formatYYYYMMDD(now) === item.date;
+  const startMs = wibDateTimeToUtcMs(item.date, item.time);
+  const endMs = startMs + (90 * 60 * 1000);
 
-  if(now >= start && now <= end){
+  const sameDay = nowWib.dateStr === item.date;
+
+  if(nowMs >= startMs && nowMs <= endMs){
     return `<span class="pill live">🔴 Sedang berlangsung</span>`;
   }
-  if(sameDay && now < start){
+  if(sameDay && nowMs < startMs){
     return `<span class="pill today">⚡ Hari ini</span>`;
   }
 
-  const diffMs = start - now;
+  const diffMs = startMs - nowMs;
   const diffDays = Math.floor(diffMs / (24*60*60*1000));
 
   if(diffDays >= 1 && diffDays <= 14){
@@ -612,14 +679,13 @@ function getStatusPills(item){
 }
 
 function pickNearestUpcoming(list){
-  const now = new Date();
+  const nowMs = Date.now();
   let best = null;
   let bestTime = Infinity;
 
   for(const item of list){
-    const dt = toDateTimeObj(item.date, item.time);
-    const t = dt.getTime();
-    if(t >= now.getTime() && t < bestTime){
+    const t = wibDateTimeToUtcMs(item.date, item.time);
+    if(t >= nowMs && t < bestTime){
       bestTime = t;
       best = item;
     }
@@ -637,6 +703,7 @@ function renderCards(list){
   }
 
   const nearest = pickNearestUpcoming(list);
+  const nowMs = Date.now();
 
   for(const item of list){
     const dt = toDateObj(item.date);
@@ -644,8 +711,8 @@ function renderCards(list){
     const m = monthNameID(dt.getMonth());
     const hari = dayNameID(dt.getDay());
 
-    const startDT = toDateTimeObj(item.date, item.time);
-    const isPast = startDT.getTime() < Date.now() - (30*60*1000);
+    const startMs = wibDateTimeToUtcMs(item.date, item.time);
+    const isPast = startMs < (nowMs - (30*60*1000));
 
     const modePill = item.mode === "offline"
       ? `<span class="pill offline">🕌 Offline</span>`
@@ -712,7 +779,7 @@ function renderCards(list){
 }
 
 function setCounts(total, shown){
-$("#footerCount").textContent = `${shown} kajian ditampilkan`;  
+  $("#footerCount").textContent = `${shown} kajian ditampilkan`;
 }
 
 function clearAllFilters(){
@@ -726,11 +793,10 @@ function clearAllFilters(){
 }
 
 function setTodayFilters(){
-  const now = new Date();
-  const today = formatYYYYMMDD(now);
-  $("#from").value = today;
-  $("#to").value = today;
-  $("#hari").value = dayNameID(now.getDay());
+  const nowWib = getWibNowParts();
+  $("#from").value = nowWib.dateStr;
+  $("#to").value = nowWib.dateStr;
+  $("#hari").value = dayNameID(nowWib.weekday);
 }
 
 function applyFilters(pushState=true){
@@ -847,14 +913,15 @@ function startFullPageReloadTimer(){
 }
 
 function fillTodayBadge(){
-  const now = new Date();
-  const label = `${dayNameID(now.getDay())}, ${now.getDate()} ${monthNameID(now.getMonth())} ${now.getFullYear()}`;
+  const nowWib = getWibNowParts();
+  const label = `${dayNameID(nowWib.weekday)}, ${nowWib.day} ${monthNameID(nowWib.month - 1)} ${nowWib.year}`;
   $("#todayText").textContent = `${label} (${siteConfig.timezoneLabel})`;
   $("#chipTodaySub").textContent = `(${label})`;
 }
 
 (async function init(){
-  $("#year").textContent = new Date().getFullYear();
+  const nowWib = getWibNowParts();
+  $("#year").textContent = nowWib.year;
   fillTodayBadge();
 
   const waMsg = encodeURIComponent("Bismillah, saya mau submit info kajian:\n\nJudul:\nUstadz:\nTanggal & Jam:\nMasjid/Lokasi:\nCatatan:");
@@ -922,9 +989,10 @@ function fillTodayBadge(){
 
   $("#chipWeek").addEventListener("click", ()=>{
     clearAllFilters();
-    const now = new Date();
-    const start = startOfWeekMonday(now);
-    const end = endOfWeekSunday(now);
+    const nowWib = getWibNowParts();
+    const todayWibDate = wibDateOnlyToJsDate(nowWib.dateStr);
+    const start = startOfWeekMonday(todayWibDate);
+    const end = endOfWeekSunday(todayWibDate);
     $("#from").value = formatYYYYMMDD(start);
     $("#to").value = formatYYYYMMDD(end);
     initialTodayMode = false;
@@ -934,9 +1002,10 @@ function fillTodayBadge(){
 
   $("#chipNearest").addEventListener("click", ()=>{
     clearAllFilters();
-    const now = new Date();
-    const from = formatYYYYMMDD(now);
-    const to = formatYYYYMMDD(new Date(now.getTime() + 14*24*60*60*1000));
+    const nowWib = getWibNowParts();
+    const todayWibDate = wibDateOnlyToJsDate(nowWib.dateStr);
+    const from = nowWib.dateStr;
+    const to = formatYYYYMMDD(new Date(todayWibDate.getTime() + 14*24*60*60*1000));
     $("#from").value = from;
     $("#to").value = to;
     initialTodayMode = false;
